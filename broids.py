@@ -58,6 +58,13 @@ class Player(object):
 
 		# media
 		self.fire_sound = load_sound('player_fire.wav')
+		self.engine_sound = load_sound('engine_on.wav')
+
+		# give engine sound its own channel
+		self.engine_channel = pygame.mixer.Channel(1)
+		self.engine_channel.set_volume(0.3)
+		self.engine_channel.play(self.engine_sound, loops=-1)
+		self.engine_channel.pause()
 
 		# vertices of spaceship
 		self.shipVertices = []
@@ -147,8 +154,10 @@ class Player(object):
 
 	def engine_activate(self):
 		self.engineOn = True
+		self.engine_channel.unpause()
 	def engine_deactivate(self):
 		self.engineOn = False
+		self.engine_channel.pause()
 
 def main():
 	pygame.init()
@@ -161,6 +170,9 @@ def main():
 	wave = 0
 	rotation = NONE
 	movement = NONE
+	bg_music = load_sound('XXXXX.ogg')
+	# start music
+	bg_music.play()
 	while (state==0):
 		SCREEN.fill(BLACK)
 		pressed_keys = pygame.key.get_pressed()
