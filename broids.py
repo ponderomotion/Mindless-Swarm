@@ -11,7 +11,8 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+BLUE = (20, 20, 255)
+YELLOW = (255,255,0)
 
 NONE = 0
 LEFT = 1
@@ -51,7 +52,8 @@ class Player(object):
 		self.vel = Vec2d(0.0,0.0)
 		self.acc = Vec2d(0.0,0.0)
 		self.bullets = []
-		self.engineOn = False
+		self.forwardEngineOn = False
+		self.reverseEngineOn = False
 		self.scale = 2
 		self.angle = 0
 		self.maxSpeed = 500
@@ -69,15 +71,22 @@ class Player(object):
 		# vertices of spaceship
 		self.shipVertices = []
 		self.exhaustVertices = []
+		self.exhaustVertices1 = [] # reverse
 
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y))
 		self.shipVertices.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y-(5*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale)))
+		
 		self.exhaustVertices.append(Vec2d(self.pos.x, self.pos.y+(2*self.scale)))
 		self.exhaustVertices.append(Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale)))
 		self.exhaustVertices.append(Vec2d(self.pos.x, self.pos.y+(7*self.scale)))
 		self.exhaustVertices.append(Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale)))
+
+		self.exhaustVertices1.append(Vec2d(self.pos.x, self.pos.y+(2*self.scale)))
+		self.exhaustVertices1.append(Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale)))
+		self.exhaustVertices1.append(Vec2d(self.pos.x, self.pos.y+(5*self.scale)))
+		self.exhaustVertices1.append(Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale)))
 
 	def update(self):
 		# semi-implicit Euler integration
@@ -98,10 +107,21 @@ class Player(object):
 		self.shipVertices[2] = Vec2d(self.pos.x, self.pos.y-(5*self.scale))
 		self.shipVertices[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
 
-		self.exhaustVertices[0] = Vec2d(self.pos.x, self.pos.y+(2*self.scale))
-		self.exhaustVertices[1] = Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale))
-		self.exhaustVertices[2] = Vec2d(self.pos.x, self.pos.y+(7*self.scale))
-		self.exhaustVertices[3] = Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale))
+		if(self.forwardEngineOn):
+			self.exhaustVertices[0] = Vec2d(self.pos.x, self.pos.y+(2*self.scale))
+			self.exhaustVertices[1] = Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale))
+			self.exhaustVertices[2] = Vec2d(self.pos.x, self.pos.y+(7*self.scale))
+			self.exhaustVertices[3] = Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale))
+			self.exhaustVertices1[0] = Vec2d(self.pos.x, self.pos.y+(2*self.scale))
+			self.exhaustVertices1[1] = Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale))
+			self.exhaustVertices1[2] = Vec2d(self.pos.x, self.pos.y+(5*self.scale))
+			self.exhaustVertices1[3] = Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale))
+
+		if(self.reverseEngineOn):
+			self.exhaustVertices1[0] = Vec2d(self.pos.x, self.pos.y+(2*self.scale))
+			self.exhaustVertices1[1] = Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale))
+			self.exhaustVertices1[2] = Vec2d(self.pos.x, self.pos.y+(5*self.scale))
+			self.exhaustVertices1[3] = Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale))
 
 		# periodic boundary
 		if(self.pos.x > WINDOW_X):
@@ -138,12 +158,23 @@ class Player(object):
 		point_3 = self.shipVertices[2].rotate(self.angle, self.pos)
 		point_4 = self.shipVertices[3].rotate(self.angle, self.pos)
 		pygame.draw.polygon(SCREEN, WHITE, (point_1, point_2, point_3, point_4) ,1)
-		if (self.engineOn):
+		if (self.forwardEngineOn):
+			point_1 = self.exhaustVertices1[0].rotate(self.angle, self.pos)
+			point_2 = self.exhaustVertices1[1].rotate(self.angle, self.pos)
+			point_3 = self.exhaustVertices1[2].rotate(self.angle, self.pos)
+			point_4 = self.exhaustVertices1[3].rotate(self.angle, self.pos)
+			pygame.draw.polygon(SCREEN, YELLOW, (point_1, point_2, point_3, point_4) ,2)
 			point_1 = self.exhaustVertices[0].rotate(self.angle, self.pos)
 			point_2 = self.exhaustVertices[1].rotate(self.angle, self.pos)
 			point_3 = self.exhaustVertices[2].rotate(self.angle, self.pos)
 			point_4 = self.exhaustVertices[3].rotate(self.angle, self.pos)
 			pygame.draw.polygon(SCREEN, RED, (point_1, point_2, point_3, point_4) ,1)
+		if (self.reverseEngineOn):
+			point_1 = self.exhaustVertices1[0].rotate(self.angle, self.pos)
+			point_2 = self.exhaustVertices1[1].rotate(self.angle, self.pos)
+			point_3 = self.exhaustVertices1[2].rotate(self.angle, self.pos)
+			point_4 = self.exhaustVertices1[3].rotate(self.angle, self.pos)
+			pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
 		
 		for bullet in self.bullets:
 			pygame.draw.circle(SCREEN, WHITE, (int(bullet.pos.x), int(bullet.pos.y)), 2)
@@ -152,11 +183,17 @@ class Player(object):
 		self.bullets.append(Bullet(self.pos, self.angle))
 		self.fire_sound.play()
 
-	def engine_activate(self):
-		self.engineOn = True
+	def forwardEngine_activate(self):
+		self.forwardEngineOn = True
 		self.engine_channel.unpause()
-	def engine_deactivate(self):
-		self.engineOn = False
+	def forwardEngine_deactivate(self):
+		self.forwardEngineOn = False
+		self.engine_channel.pause()
+	def reverseEngine_activate(self):
+		self.reverseEngineOn = True
+		self.engine_channel.unpause()
+	def reverseEngine_deactivate(self):
+		self.reverseEngineOn = False
 		self.engine_channel.pause()
 
 def main():
@@ -170,9 +207,9 @@ def main():
 	wave = 0
 	rotation = NONE
 	movement = NONE
-	bg_music = load_sound('XXXXX.ogg')
+	#bg_music = load_sound('XXXXX.ogg')
 	# start music
-	bg_music.play()
+	#bg_music.play()
 	while (state==0):
 		SCREEN.fill(BLACK)
 		pressed_keys = pygame.key.get_pressed()
@@ -203,14 +240,16 @@ def main():
 		if movement == FORWARDS:
 			player1.acc.x = 300 * sin(radians(player1.angle))
 			player1.acc.y = -300 * cos(radians(player1.angle))
-			player1.engine_activate()
+			player1.forwardEngine_activate()
 		if movement == BACKWARDS:
 			player1.acc.x = -300 * sin(radians(player1.angle))
 			player1.acc.y = 300 * cos(radians(player1.angle))
+			player1.reverseEngine_activate()
 		if movement == NONE:
 			player1.acc.x = 0.0
 			player1.acc.y = 0.0
-			player1.engine_deactivate()
+			player1.forwardEngine_deactivate()
+			player1.reverseEngine_deactivate()
 
 		clock_time = displayFont.render("TIME: " + str(time_passed), True, (255,0,255)) 
 		SCREEN.blit(clock_time, (400, 500))
