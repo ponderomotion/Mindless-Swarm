@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from sys import exit
 from math import sin, cos, radians
+from audio import *
 
 WINDOW_X = 800
 WINDOW_Y = 600
@@ -54,6 +55,10 @@ class Player(object):
 		self.scale = 2
 		self.angle = 0
 		self.maxSpeed = 500
+
+		# media
+		self.fire_sound = load_sound('player_fire.wav')
+
 		# vertices of spaceship
 		self.shipVertices = []
 		self.exhaustVertices = []
@@ -62,15 +67,17 @@ class Player(object):
 		self.shipVertices.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y-(5*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale)))
-		self.exhaustVertices.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y))
-		self.exhaustVertices.append(Vec2d(self.pos.x-(3.5*self.scale), self.pos.y+(3*self.scale)))
-		self.exhaustVertices.append(Vec2d(self.pos.x-(3.5*self.scale), self.pos.y-(3*self.scale)))
+		self.exhaustVertices.append(Vec2d(self.pos.x, self.pos.y+(2*self.scale)))
+		self.exhaustVertices.append(Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale)))
+		self.exhaustVertices.append(Vec2d(self.pos.x, self.pos.y+(7*self.scale)))
+		self.exhaustVertices.append(Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale)))
 
 	def update(self):
 		# semi-implicit Euler integration
 		dt = clock.tick() / 1000.00
-		self.vel.x = self.vel.x + self.acc.x * dt
-		self.vel.y = self.vel.y + self.acc.y * dt
+		# friction coefficient 0.99
+		self.vel.x = (0.99 * self.vel.x) + self.acc.x * dt
+		self.vel.y = (0.99 * self.vel.y) + self.acc.y * dt
 		if self.vel.x > self.maxSpeed:
 			self.vel.x = self.maxSpeed
 		if self.vel.y > self.maxSpeed:
@@ -84,9 +91,10 @@ class Player(object):
 		self.shipVertices[2] = Vec2d(self.pos.x, self.pos.y-(5*self.scale))
 		self.shipVertices[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
 
-		self.exhaustVertices[0] = Vec2d(self.pos.x+(3*self.scale), self.pos.y)
-		self.exhaustVertices[1] = Vec2d(self.pos.x-(3.5*self.scale), self.pos.y+(3*self.scale))
-		self.exhaustVertices[2] = Vec2d(self.pos.x-(3.5*self.scale), self.pos.y-(3*self.scale))
+		self.exhaustVertices[0] = Vec2d(self.pos.x, self.pos.y+(2*self.scale))
+		self.exhaustVertices[1] = Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale))
+		self.exhaustVertices[2] = Vec2d(self.pos.x, self.pos.y+(7*self.scale))
+		self.exhaustVertices[3] = Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale))
 
 		# periodic boundary
 		if(self.pos.x > WINDOW_X):
@@ -98,7 +106,6 @@ class Player(object):
 		if(self.pos.y < 0):
 			self.pos.y = WINDOW_Y
 
-		print len(self.bullets)
 		# update all of this players bullet positions
 		for bullet in self.bullets:
 			#delete bullets that have gone out of bounds
@@ -128,13 +135,15 @@ class Player(object):
 			point_1 = self.exhaustVertices[0].rotate(self.angle, self.pos)
 			point_2 = self.exhaustVertices[1].rotate(self.angle, self.pos)
 			point_3 = self.exhaustVertices[2].rotate(self.angle, self.pos)
-			pygame.draw.polygon(SCREEN, RED, (point_1, point_2, point_3) ,1)
+			point_4 = self.exhaustVertices[3].rotate(self.angle, self.pos)
+			pygame.draw.polygon(SCREEN, RED, (point_1, point_2, point_3, point_4) ,1)
 		
 		for bullet in self.bullets:
 			pygame.draw.circle(SCREEN, WHITE, (int(bullet.pos.x), int(bullet.pos.y)), 2)
 
 	def shoot(self):
 		self.bullets.append(Bullet(self.pos, self.angle))
+		self.fire_sound.play()
 
 	def engine_activate(self):
 		self.engineOn = True
