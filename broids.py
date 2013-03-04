@@ -3,40 +3,9 @@ from pygame.locals import *
 from sys import exit
 from math import sin, cos, radians
 from audio import *
-
-WINDOW_X = 800
-WINDOW_Y = 600
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (20, 20, 255)
-YELLOW = (255,255,0)
-
-NONE = 0
-LEFT = 1
-RIGHT = 2
-
-FORWARDS = 1
-BACKWARDS = 2
-
-SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),0,32)
-clock = pygame.time.Clock()
-
-
-
-class Vec2d():
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
-	def to_tuple(self):
-		return self.x, self.y
-	def rotate(self, degrees, origin):
-		theta = radians(degrees)
-		newx = origin.x + ((self.x - origin.x) * cos(theta) - (self.y - origin.y) * sin(theta))
-		newy = origin.y + ((self.x - origin.x) * sin(theta) + (self.y - origin.y) * cos(theta))
-		return newx,newy
+from enemies import *
+from vector import *
+from shared import *
 
 class Bullet(object):
 	def __init__(self, init_pos, init_vel, angle):
@@ -88,9 +57,8 @@ class Player(object):
 		self.exhaustVertices1.append(Vec2d(self.pos.x, self.pos.y+(5*self.scale)))
 		self.exhaustVertices1.append(Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale)))
 
-	def update(self):
+	def update(self,dt):
 		# semi-implicit Euler integration
-		dt = clock.tick() / 1000.00
 		# friction coefficient 0.99
 		self.vel.x = (0.99 * self.vel.x) + self.acc.x * dt
 		self.vel.y = (0.99 * self.vel.y) + self.acc.y * dt
@@ -199,6 +167,7 @@ class Player(object):
 def main():
 	pygame.init()
 	player1 = Player()
+	enemy = Enemy()
 	displayFont = pygame.font.SysFont("consola", 16)
 	pygame.display.set_caption("AstroRoidRage")
 	state = 0
@@ -253,8 +222,16 @@ def main():
 
 		clock_time = displayFont.render("TIME: " + str(time_passed), True, (255,0,255)) 
 		SCREEN.blit(clock_time, (400, 500))
-		player1.update()
+
+		# update positions and maybe spawn enemies
+		#dt = clock.tick() / 1000.00
+		dt = 0.02
+		player1.update(dt)
+		enemy.update(dt)
+
+
 		player1.display()
+		enemy.display()
 		pygame.display.update()
       
 main()
