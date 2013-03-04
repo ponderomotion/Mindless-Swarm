@@ -8,6 +8,20 @@ from vector import *
 from shared import *
 from random import random
 
+
+def deathScreen(time=5):
+	dsclock = pygame.time.Clock()
+	timePassed = dsclock.tick() / 1000.00
+	while (timePassed<time):
+		SCREEN.fill((random()*255,random()*255,random()*255))
+		timePassed = timePassed + dsclock.tick() / 1000.00
+		displayFont = pygame.font.SysFont("consola", 32)
+		death_message = displayFont.render("YOU DIED", True, (0,0,0))
+		SCREEN.blit(death_message, (WINDOW_X/2,WINDOW_Y/2))
+		pygame.display.update()
+
+
+
 class Player(object):
 	def __init__(self, name = "p1"):
 		self.name = name
@@ -177,7 +191,7 @@ def main():
 	new_enemy = Enemy()
 	enemyList.append(new_enemy)
 	displayFont = pygame.font.SysFont("consola", 16)
-	pygame.display.set_caption("AstroRoidRage")
+	pygame.display.set_caption("How Long Can You Survive the Mindless Swarm?")
 	state = 0
 	clock = pygame.time.Clock()
 	time_passed = clock.tick() / 1000.00
@@ -205,6 +219,8 @@ def main():
 					movement = BACKWARDS
 				elif event.key == K_SPACE:
 					player1.shoot()
+				#elif event.key == K_p:
+					#deathScreen(2.5)
 			if event.type == KEYUP:
 				if (event.key == K_d or event.key == K_a):
 					rotation = NONE
@@ -239,7 +255,7 @@ def main():
 
 		# 0.1% chance of spawning an enemy
 		rand1 = random()
-		if(rand1<0.03):
+		if(rand1<0.02):
 			new_enemy = Enemy(init_angle = (random()*360))
 			enemyList.append(new_enemy)
 		
@@ -256,9 +272,10 @@ def main():
 						if(bullet.pos.y < playerorigin[1] + 6):
 							if(bullet.pos.y > playerorigin[1] - 6):
 								if(time_passed > topScore):
-									topScore = time_passed
+									topScore = int(time_passed) * 1000
 								time_passed = 0
 								del enemyList[:]
+								deathScreen(1)
 		
 		# draw the crap collision box
 		point_1 = (playerorigin[0]-7,playerorigin[1]-7)
