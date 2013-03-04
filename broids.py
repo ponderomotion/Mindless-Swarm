@@ -239,7 +239,7 @@ def main():
 
 		# 0.1% chance of spawning an enemy
 		rand1 = random()
-		if(rand1<0.05):
+		if(rand1<0.03):
 			new_enemy = Enemy()
 			enemyList.append(new_enemy)
 		
