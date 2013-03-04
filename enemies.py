@@ -24,8 +24,8 @@ class Enemy(object):
 		self.bulletSpeed = 200
 
 		# media
-		self.fire_sound = load_sound('enemy_fire.wav')
-		self.fire_sound.set_volume(0.1)
+		self.fire_sound = load_sound('wub.wav')
+		self.fire_sound.set_volume(0.3)
 		self.engine_sound = load_sound('engine_on.wav')
 
 		# give engine sound its own channel

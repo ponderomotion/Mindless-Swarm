@@ -6,21 +6,33 @@ from audio import *
 from enemies import *
 from vector import *
 from shared import *
-from random import random
+from random import random, randint
 
 
 def deathScreen(time=5):
 	dsclock = pygame.time.Clock()
 	timePassed = dsclock.tick() / 1000.00
+	rand1 = randint(1,5)
+	rand1 = int(rand1 + 0.5)
+	if (rand1 == 1):
+		sheitsound = load_sound('sheit.wav')
+	if (rand1 == 2):
+		sheitsound = load_sound('rasp.wav')
+	if (rand1 == 3):
+		sheitsound = load_sound('cough.wav')
+	if (rand1 == 4):
+		sheitsound = load_sound('wahwah.wav')
+	if (rand1 == 5):
+		sheitsound = load_sound('hellno.wav')
+ 
+	sheitsound.play()
 	while (timePassed<time):
 		SCREEN.fill((random()*255,random()*255,random()*255))
 		timePassed = timePassed + dsclock.tick() / 1000.00
 		displayFont = pygame.font.SysFont("consola", 32)
-		death_message = displayFont.render("YOU DIED", True, (0,0,0))
+		death_message = displayFont.render("YOU BIN DED", True, (0,0,0))
 		SCREEN.blit(death_message, (WINDOW_X/2,WINDOW_Y/2))
 		pygame.display.update()
-
-
 
 class Player(object):
 	def __init__(self, name = "p1"):
@@ -37,8 +49,8 @@ class Player(object):
 		self.bulletSpeed = 300
 
 		# media
-		self.fire_sound = load_sound('player_fire.wav')
-		self.engine_sound = load_sound('engine_on.wav')
+		self.fire_sound = load_sound('pew.wav')
+		self.engine_sound = load_sound('engine_sophie.wav')
 
 		# give engine sound its own channel
 		self.engine_channel = pygame.mixer.Channel(1)
@@ -256,7 +268,7 @@ def main():
 
 		# 0.1% chance of spawning an enemy
 		rand1 = random()
-		if(rand1<0.02):
+		if(rand1<0.01):
 			new_enemy = Enemy(init_angle = (random()*360))
 			enemyList.append(new_enemy)
 		
@@ -274,9 +286,9 @@ def main():
 							if(bullet.pos.y > playerorigin[1] - 6):
 								if(int(time_passed * 1000) > topScore):
 									topScore = int(time_passed) * 1000
-								time_passed = 0
 								del enemyList[:]
 								deathScreen(1)
+								time_passed = 0
 		
 		# draw the crap collision box
 		point_1 = (playerorigin[0]-7,playerorigin[1]-7)
@@ -284,8 +296,6 @@ def main():
 		point_3 = (playerorigin[0]+7,playerorigin[1]+7)
 		point_4 = (playerorigin[0]-7,playerorigin[1]+7)
 		pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
-
-
 
 		for enemy in enemyList:
 			enemy.display()
