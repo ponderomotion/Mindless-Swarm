@@ -10,7 +10,7 @@ import random
 enemyList = []
 
 class Enemy(object):
-	def __init__(self, name = "enemy", init_pos=Vec2d(WINDOW_X/2,WINDOW_Y/2), init_vel=Vec2d(0,0)):
+	def __init__(self, name = "enemy", init_pos=Vec2d(WINDOW_X/2,WINDOW_Y/2), init_vel=Vec2d(0,0),init_angle=0):
 		self.name = name
 		self.pos = Vec2d(init_pos.x,init_pos.x)
 		self.vel = Vec2d(init_vel.x,init_vel.y)
@@ -19,7 +19,7 @@ class Enemy(object):
 		self.forwardEngineOn = False
 		self.reverseEngineOn = False
 		self.scale = 2
-		self.angle = 0
+		self.angle = init_angle
 		self.maxSpeed = 50
 
 		# media

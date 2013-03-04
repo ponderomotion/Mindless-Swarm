@@ -228,7 +228,7 @@ def main():
 			player1.forwardEngine_deactivate()
 			player1.reverseEngine_deactivate()
 
-		current_score = displayFont.render("SCORE: " + str(time_passed), True, (255,120,255)) 
+		current_score = displayFont.render("SCORE: " + str(int(time_passed*1000)), True, (255,120,255)) 
 		top_score = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
 		SCREEN.blit(current_score, (10, 30))
 		SCREEN.blit(top_score, (10, 10))
@@ -240,7 +240,7 @@ def main():
 		# 0.1% chance of spawning an enemy
 		rand1 = random()
 		if(rand1<0.03):
-			new_enemy = Enemy()
+			new_enemy = Enemy(init_angle = (random()*360))
 			enemyList.append(new_enemy)
 		
 		player1.update(dt)
@@ -255,10 +255,10 @@ def main():
 					if (bullet.pos.x > playerorigin[0] - 6):
 						if(bullet.pos.y < playerorigin[1] + 6):
 							if(bullet.pos.y > playerorigin[1] - 6):
-								time_passed = 0
-								del enemyList[:]
 								if(time_passed > topScore):
 									topScore = time_passed
+								time_passed = 0
+								del enemyList[:]
 		
 		# draw the crap collision box
 		point_1 = (playerorigin[0]-7,playerorigin[1]-7)
