@@ -39,11 +39,11 @@ class Vec2d():
 		return newx,newy
 
 class Bullet(object):
-	def __init__(self, init_pos, angle):
+	def __init__(self, init_pos, init_vel, angle):
 		self.pos = Vec2d(init_pos.x, init_pos.y)
-		self.vel = Vec2d(0,0)
-		self.vel.x = 300 * sin(radians(angle))
-		self.vel.y = -300 * cos(radians(angle))
+		self.vel = Vec2d(init_vel.x, init_vel.y)
+		self.vel.x = (300 + abs(self.vel.x)) * sin(radians(angle))
+		self.vel.y = -(300 + abs(self.vel.y)) * cos(radians(angle))
 
 class Player(object):
 	def __init__(self, name = "p1"):
@@ -180,7 +180,7 @@ class Player(object):
 			pygame.draw.circle(SCREEN, WHITE, (int(bullet.pos.x), int(bullet.pos.y)), 2)
 
 	def shoot(self):
-		self.bullets.append(Bullet(self.pos, self.angle))
+		self.bullets.append(Bullet(self.pos, self.vel, self.angle))
 		self.fire_sound.play()
 
 	def forwardEngine_activate(self):
