@@ -8,7 +8,6 @@ from vector import *
 from shared import *
 from random import random
 
-
 class Player(object):
 	def __init__(self, name = "p1"):
 		self.name = name
@@ -173,6 +172,7 @@ class Player(object):
 
 def main():
 	pygame.init()
+	topScore = 0.0
 	player1 = Player()
 	new_enemy = Enemy()
 	enemyList.append(new_enemy)
@@ -228,8 +228,10 @@ def main():
 			player1.forwardEngine_deactivate()
 			player1.reverseEngine_deactivate()
 
-		clock_time = displayFont.render("TIME: " + str(time_passed), True, (255,0,255)) 
-		SCREEN.blit(clock_time, (400, 500))
+		current_score = displayFont.render("SCORE: " + str(time_passed), True, (255,120,255)) 
+		top_score = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
+		SCREEN.blit(current_score, (10, 30))
+		SCREEN.blit(top_score, (10, 10))
 
 		# update positions and maybe spawn enemies
 		#dt = clock.tick() / 1000.00
@@ -237,7 +239,7 @@ def main():
 
 		# 0.1% chance of spawning an enemy
 		rand1 = random()
-		if(rand1<0.01):
+		if(rand1<0.05):
 			new_enemy = Enemy()
 			enemyList.append(new_enemy)
 		
@@ -253,7 +255,17 @@ def main():
 					if (bullet.pos.x > playerorigin[0] - 6):
 						if(bullet.pos.y < playerorigin[1] + 6):
 							if(bullet.pos.y > playerorigin[1] - 6):
-								print 'you bin dead'
+								time_passed = 0
+								del enemyList[:]
+								if(time_passed > topScore):
+									topScore = time_passed
+		
+		# draw the crap collision box
+		point_1 = (playerorigin[0]-7,playerorigin[1]-7)
+		point_2 = (playerorigin[0]+7,playerorigin[1]-7)
+		point_3 = (playerorigin[0]+7,playerorigin[1]+7)
+		point_4 = (playerorigin[0]-7,playerorigin[1]+7)
+		pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
 
 
 
