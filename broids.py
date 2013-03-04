@@ -6,13 +6,8 @@ from audio import *
 from enemies import *
 from vector import *
 from shared import *
+from random import random
 
-class Bullet(object):
-	def __init__(self, init_pos, init_vel, angle):
-		self.pos = Vec2d(init_pos.x, init_pos.y)
-		self.vel = Vec2d(init_vel.x, init_vel.y)
-		self.vel.x = (300 + abs(self.vel.x)) * sin(radians(angle))
-		self.vel.y = -(300 + abs(self.vel.y)) * cos(radians(angle))
 
 class Player(object):
 	def __init__(self, name = "p1"):
@@ -41,11 +36,17 @@ class Player(object):
 		self.shipVertices = []
 		self.exhaustVertices = []
 		self.exhaustVertices1 = [] # reverse
+		self.hitboxRect = []
 
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y))
 		self.shipVertices.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y-(5*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale)))
+
+		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale)))
+		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale)))
+		self.hitboxRect.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y-(5*self.scale)))
+		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale)))
 		
 		self.exhaustVertices.append(Vec2d(self.pos.x, self.pos.y+(2*self.scale)))
 		self.exhaustVertices.append(Vec2d(self.pos.x+(1.5*self.scale), self.pos.y+(3.5*self.scale)))
@@ -74,6 +75,12 @@ class Player(object):
 		self.shipVertices[1] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale))
 		self.shipVertices[2] = Vec2d(self.pos.x, self.pos.y-(5*self.scale))
 		self.shipVertices[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
+
+		#bottomright->topright->topleft->bottomleft
+		self.hitboxRect[0] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale))
+		self.hitboxRect[1] = Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale))
+		self.hitboxRect[2] = Vec2d(self.pos.x+(3*self.scale), self.pos.y-(5*self.scale))
+		self.hitboxRect[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
 
 		if(self.forwardEngineOn):
 			self.exhaustVertices[0] = Vec2d(self.pos.x, self.pos.y+(2*self.scale))
@@ -167,7 +174,8 @@ class Player(object):
 def main():
 	pygame.init()
 	player1 = Player()
-	enemy = Enemy()
+	new_enemy = Enemy()
+	enemyList.append(new_enemy)
 	displayFont = pygame.font.SysFont("consola", 16)
 	pygame.display.set_caption("AstroRoidRage")
 	state = 0
@@ -176,9 +184,9 @@ def main():
 	wave = 0
 	rotation = NONE
 	movement = NONE
-	#bg_music = load_sound('XXXXX.ogg')
+	bg_music = load_sound('XXXXX.ogg')
 	# start music
-	#bg_music.play()
+	bg_music.play()
 	while (state==0):
 		SCREEN.fill(BLACK)
 		pressed_keys = pygame.key.get_pressed()
@@ -226,12 +234,33 @@ def main():
 		# update positions and maybe spawn enemies
 		#dt = clock.tick() / 1000.00
 		dt = 0.02
+
+		# 0.1% chance of spawning an enemy
+		rand1 = random()
+		if(rand1<0.01):
+			new_enemy = Enemy()
+			enemyList.append(new_enemy)
+		
 		player1.update(dt)
-		enemy.update(dt)
+		for enemy in enemyList:
+			enemy.update(dt)
+		
+		# check enemy bullet collisions here
+		playerorigin = player1.shipVertices[0].rotate(player1.angle, player1.pos)
+		for enemy in enemyList:
+			for bullet in enemy.bullets:
+				if (bullet.pos.x < playerorigin[0] + 6):
+					if (bullet.pos.x > playerorigin[0] - 6):
+						if(bullet.pos.y < playerorigin[1] + 6):
+							if(bullet.pos.y > playerorigin[1] - 6):
+								print 'you bin dead'
 
 
+
+		for enemy in enemyList:
+			enemy.display()
 		player1.display()
-		enemy.display()
+
 		pygame.display.update()
       
 main()
