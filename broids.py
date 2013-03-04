@@ -271,7 +271,7 @@ def main():
 					if (bullet.pos.x > playerorigin[0] - 6):
 						if(bullet.pos.y < playerorigin[1] + 6):
 							if(bullet.pos.y > playerorigin[1] - 6):
-								if(time_passed > topScore):
+								if(int(time_passed * 1000) > topScore):
 									topScore = int(time_passed) * 1000
 								time_passed = 0
 								del enemyList[:]
