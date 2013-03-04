@@ -21,6 +21,7 @@ class Enemy(object):
 		self.scale = 2
 		self.angle = init_angle
 		self.maxSpeed = 50
+		self.bulletSpeed = 200
 
 		# media
 		self.fire_sound = load_sound('enemy_fire.wav')
@@ -127,7 +128,7 @@ class Enemy(object):
 			pygame.draw.circle(SCREEN, RED, (int(bullet.pos.x), int(bullet.pos.y)), 2)
 
 	def shoot(self):
-		self.bullets.append(Bullet(self.pos, self.vel, self.angle))
+		self.bullets.append(Bullet(self.pos, self.vel, self.angle, speed = self.bulletSpeed))
 		self.fire_sound.play()
 
 	def forwardEngine_activate(self):

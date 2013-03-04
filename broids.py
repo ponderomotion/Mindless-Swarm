@@ -34,6 +34,7 @@ class Player(object):
 		self.scale = 2
 		self.angle = 0
 		self.maxSpeed = 500
+		self.bulletSpeed = 300
 
 		# media
 		self.fire_sound = load_sound('player_fire.wav')

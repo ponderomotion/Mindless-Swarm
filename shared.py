@@ -23,8 +23,8 @@ SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),0,32)
 clock = pygame.time.Clock()
 
 class Bullet(object):
-	def __init__(self, init_pos, init_vel, angle):
+	def __init__(self, init_pos, init_vel, angle, speed=300):
 		self.pos = Vec2d(init_pos.x, init_pos.y)
 		self.vel = Vec2d(init_vel.x, init_vel.y)
-		self.vel.x = (300 + abs(self.vel.x)) * sin(radians(angle))
-		self.vel.y = -(300 + abs(self.vel.y)) * cos(radians(angle))
+		self.vel.x = (speed + abs(self.vel.x)) * sin(radians(angle))
+		self.vel.y = -(speed + abs(self.vel.y)) * cos(radians(angle))
