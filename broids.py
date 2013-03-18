@@ -199,7 +199,8 @@ class Player(object):
 
 def main():
 	pygame.init()
-	topScore = 0.0
+	topScore = 0
+	kill_score = 0
 	player1 = Player()
 	new_enemy = Enemy()
 	enemyList.append(new_enemy)
@@ -211,9 +212,12 @@ def main():
 	wave = 0
 	rotation = NONE
 	movement = NONE
-	bg_music = load_sound('XXXXX.ogg')
+	bg_music = load_sound('XXXXX.wav')
 	# start music
 	bg_music.play()
+
+	draw_collision_boxes=False
+
 	while (state==0):
 		SCREEN.fill(BLACK)
 		pressed_keys = pygame.key.get_pressed()
@@ -257,10 +261,11 @@ def main():
 			player1.forwardEngine_deactivate()
 			player1.reverseEngine_deactivate()
 
-		current_score = displayFont.render("SCORE: " + str(int(time_passed*1000)), True, (255,120,255)) 
-		top_score = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
-		SCREEN.blit(current_score, (10, 30))
-		SCREEN.blit(top_score, (10, 10))
+		current_score = int(time_passed*1000) + kill_score
+		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,120,255)) 
+		top_score_text = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
+		SCREEN.blit(current_score_text, (10, 30))
+		SCREEN.blit(top_score_text, (10, 10))
 
 		# update positions and maybe spawn enemies
 		#dt = clock.tick() / 1000.00
@@ -276,7 +281,7 @@ def main():
 		for enemy in enemyList:
 			enemy.update(dt)
 		
-		# check enemy bullet collisions here
+		# check enemy bullet collisions with player here
 		playerorigin = player1.shipVertices[0].rotate(player1.angle, player1.pos)
 		for enemy in enemyList:
 			for bullet in enemy.bullets:
@@ -284,18 +289,45 @@ def main():
 					if (bullet.pos.x > playerorigin[0] - 6):
 						if(bullet.pos.y < playerorigin[1] + 6):
 							if(bullet.pos.y > playerorigin[1] - 6):
-								if(int(time_passed * 1000) > topScore):
-									topScore = int(time_passed) * 1000
+								if(current_score > topScore):
+									topScore = current_score
 								del enemyList[:]
 								deathScreen(1)
 								time_passed = 0
+								kill_score = 0
+
+		# check player bullet collisions with enemies here
+		for bullet in player1.bullets:
+			for enemy in enemyList:
+				enemyorigin = Vec2d(enemy.pos.x, enemy.pos.y + 9)
+				enemyorigin = enemyorigin.rotate(enemy.angle, enemy.pos)
+				if (bullet.pos.x < enemyorigin[0] + 8):
+					if (bullet.pos.x > enemyorigin[0] - 8):
+						if (bullet.pos.y < enemyorigin[1] + 8):
+							if (bullet.pos.y > enemyorigin[1] - 8):
+								enemy.death_sound.play()
+								enemyList.remove(enemy)
+								player1.bullets.remove(bullet)
+								kill_score += 5000
 		
-		# draw the crap collision box
-		point_1 = (playerorigin[0]-7,playerorigin[1]-7)
-		point_2 = (playerorigin[0]+7,playerorigin[1]-7)
-		point_3 = (playerorigin[0]+7,playerorigin[1]+7)
-		point_4 = (playerorigin[0]-7,playerorigin[1]+7)
-		pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
+
+		if(draw_collision_boxes):
+			# draw the crap player collision box
+			point_1 = (playerorigin[0]-7,playerorigin[1]-7)
+			point_2 = (playerorigin[0]+7,playerorigin[1]-7)
+			point_3 = (playerorigin[0]+7,playerorigin[1]+7)
+			point_4 = (playerorigin[0]-7,playerorigin[1]+7)
+			pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
+
+			# draw enemy collision boxes
+			for enemy in enemyList:
+				enemyorigin = Vec2d(enemy.pos.x, enemy.pos.y + 9)
+				enemyorigin = enemyorigin.rotate(enemy.angle, enemy.pos)
+				point_1 = (enemyorigin[0] + 7, enemyorigin[1] + 7)
+				point_2 = (enemyorigin[0] + 7, enemyorigin[1] - 7)
+				point_3 = (enemyorigin[0] - 7, enemyorigin[1] - 7)
+				point_4 = (enemyorigin[0] - 7, enemyorigin[1] + 7)
+				pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
 
 		for enemy in enemyList:
 			enemy.display()

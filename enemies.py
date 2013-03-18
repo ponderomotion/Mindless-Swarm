@@ -27,6 +27,8 @@ class Enemy(object):
 		self.fire_sound = load_sound('wub.wav')
 		self.fire_sound.set_volume(0.3)
 		self.engine_sound = load_sound('engine_on.wav')
+		self.death_sound = load_sound('explosion.wav')
+		self.death_sound.set_volume(0.4)
 
 		# give engine sound its own channel
 		# self.engine_channel = pygame.mixer.Channel(EngineChannel)
@@ -39,6 +41,7 @@ class Enemy(object):
 		self.shipVertices = []
 		self.exhaustVertices = []
 		self.exhaustVertices1 = [] # reverse
+		self.hitboxRect = []
 
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y))
 		self.shipVertices.append(Vec2d(self.pos.x+(1*self.scale), self.pos.y+(6*self.scale)))
@@ -46,6 +49,11 @@ class Enemy(object):
 		self.shipVertices.append(Vec2d(self.pos.x, self.pos.y+(10*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y+(2*self.scale)))
 		self.shipVertices.append(Vec2d(self.pos.x-(1*self.scale), self.pos.y+(6*self.scale)))
+
+		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale)))
+		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale)))
+		self.hitboxRect.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y-(5*self.scale)))
+		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale)))
 		
 	def update(self, dt):
 		# semi-implicit Euler integration
@@ -82,6 +90,11 @@ class Enemy(object):
 		self.shipVertices[3] = Vec2d(self.pos.x, self.pos.y+(10*self.scale))
 		self.shipVertices[4] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(2*self.scale))
 		self.shipVertices[5] = Vec2d(self.pos.x-(1*self.scale), self.pos.y+(6*self.scale))
+
+		self.hitboxRect[0] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale))
+		self.hitboxRect[1] = Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale))
+		self.hitboxRect[2] = Vec2d(self.pos.x+(3*self.scale), self.pos.y-(5*self.scale))
+		self.hitboxRect[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
 
 		# periodic boundary
 		if(self.pos.x > WINDOW_X):
