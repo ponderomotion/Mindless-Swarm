@@ -200,6 +200,7 @@ class Player(object):
 def main():
 	pygame.init()
 	topScore = 0
+	current_score = 0
 	kill_score = 0
 	player1 = Player()
 	new_enemy = Enemy()
@@ -212,11 +213,19 @@ def main():
 	wave = 0
 	rotation = NONE
 	movement = NONE
+
+	music_channel = pygame.mixer.Channel(0)
+
 	bg_music = load_sound('XXXXX.wav')
-	# start music
-	bg_music.play()
+	#music_channel.set_volume(0.3)
+	music_channel.play(bg_music, loops=-1)
 
 	draw_collision_boxes=False
+
+	bgOne = pygame.image.load('assets/spacebg.png').convert()
+	bgTwo = pygame.image.load('assets/spacebg.png').convert()
+	bgOne_x = 0
+	bgTwo_x = bgOne.get_width()
 
 	while (state==0):
 		SCREEN.fill(BLACK)
@@ -261,8 +270,29 @@ def main():
 			player1.forwardEngine_deactivate()
 			player1.reverseEngine_deactivate()
 
+		# increase background scroll speed as score increases
+		bgspeed = 1 + (current_score / 100000.0)
+
+		# draw the background
+		SCREEN.blit(bgOne,(bgOne_x,0))
+		SCREEN.blit(bgTwo,(bgTwo_x,0))
+
+		bgOne_x -= bgspeed
+		bgTwo_x -= bgspeed
+
+		
+
+		# periodicity
+		if bgOne_x <= -1 * bgOne.get_width():
+			bgOne_x = bgTwo_x + bgTwo.get_width()
+		if bgTwo_x <= -1 * bgTwo.get_width():
+			bgTwo_x = bgOne_x + bgOne.get_width()
+
+
 		current_score = int(time_passed*1000) + kill_score
-		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,120,255)) 
+		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,120,255))
+		if(current_score > topScore): 
+			topScore = current_score 
 		top_score_text = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
 		SCREEN.blit(current_score_text, (10, 30))
 		SCREEN.blit(top_score_text, (10, 10))
@@ -273,7 +303,7 @@ def main():
 
 		# 0.1% chance of spawning an enemy
 		rand1 = random()
-		if(rand1<0.01):
+		if(rand1<0.02):
 			new_enemy = Enemy(init_angle = (random()*360))
 			enemyList.append(new_enemy)
 		
@@ -295,6 +325,7 @@ def main():
 								deathScreen(1)
 								time_passed = 0
 								kill_score = 0
+								bgspeed = 1
 
 		# check player bullet collisions with enemies here
 		for bullet in player1.bullets:
@@ -333,7 +364,7 @@ def main():
 			enemy.display()
 		player1.display()
 
-		pygame.display.update()
+		pygame.display.flip()
       
 main()
 pygame.quit()

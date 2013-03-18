@@ -19,7 +19,7 @@ RIGHT = 2
 FORWARDS = 1
 BACKWARDS = 2
 
-SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),0,32)
+SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.DOUBLEBUF)
 clock = pygame.time.Clock()
 
 class Bullet(object):
