@@ -151,15 +151,19 @@ def main():
 									if(bullet.type == 3):
 										player1.stun()
 									else: # player dies
+										time_passed = 0
+										kill_score = 0
+										bgspeed = 1
+										del enemyList[:]
 										if(current_score >= topScore):
 											topScore = current_score
 											highscores.high_score = topScore
 											writescores(highscores)
-										del enemyList[:]
-										deathScreen(1)
-										time_passed = 0
-										kill_score = 0
-										bgspeed = 1
+											deathScreen(1.5, highscore=True)
+										else:
+											deathScreen(1, highscore=False)
+										
+
 
 		# check player bullet collisions with enemies here
 		for bullet in player1.bullets:
@@ -172,7 +176,12 @@ def main():
 							if (bullet.pos.y > enemyorigin[1] - 8):
 								enemy.death_sound.play()
 								enemyList.remove(enemy)
-								player1.bullets.remove(bullet)
+								try:
+									#dont crash here because there's a possibilty that the
+									#bullet is also pruned by screen edge
+									player1.bullets.remove(bullet)
+								except:
+									None
 								kill_score += 5000
 		
 

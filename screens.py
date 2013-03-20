@@ -5,7 +5,7 @@ from pygame.locals import *
 from shared import *
 from random import random, randint
 
-def deathScreen(time=5):
+def deathScreen(time=5,highscore=False):
 	dsclock = pygame.time.Clock()
 	timePassed = dsclock.tick() / 1000.00
 	rand1 = randint(1,5)
@@ -23,11 +23,13 @@ def deathScreen(time=5):
  
  	cont = False
 	sheitsound.play()
-	print timePassed, time
 	while (timePassed<time):
 		SCREEN.fill((random()*255,random()*255,random()*255))
 		timePassed = timePassed + dsclock.tick() / 1000.00
 		displayFont = pygame.font.SysFont("consola", 32)
-		death_message = displayFont.render("YOU BIN DED", True, (0,0,0))
-		SCREEN.blit(death_message, (WINDOW_X/2,WINDOW_Y/2))
+		if(highscore):
+			death_message = displayFont.render("You died but....NEW HIGH SCORE!", True, (0,0,0))
+		else:
+			death_message = displayFont.render("YOU DIED IN AGONY!", True, (0,0,0))
+		SCREEN.blit(death_message, (WINDOW_X/2 - death_message.get_width()/2,WINDOW_Y/2))
 		pygame.display.update()
