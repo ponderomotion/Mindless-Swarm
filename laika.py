@@ -80,6 +80,8 @@ def main():
 		# player controls, check if player is stunned or under any other effects
 		if player1.stunned:
 			player1.angle = player1.angle + 10
+			player1.acc.x = 0.0
+			player1.acc.y = 0.0
 		else:
 			if rotation == RIGHT:
 				player1.angle = player1.angle + 10

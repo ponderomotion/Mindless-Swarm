@@ -115,7 +115,7 @@ class Player(object):
 		point_3 = self.shipVertices[2].rotate(self.angle, self.pos)
 		point_4 = self.shipVertices[3].rotate(self.angle, self.pos)
 		if self.stunned:
-			pygame.draw.polygon(SCREEN, (100,100,255), (point_1, point_2, point_3, point_4) ,1)
+			pygame.draw.polygon(SCREEN, (100,100,255), (point_1, point_2, point_3, point_4) ,2)
 		else:
 			pygame.draw.polygon(SCREEN, WHITE, (point_1, point_2, point_3, point_4) ,1)
 		if (self.forwardEngineOn):
