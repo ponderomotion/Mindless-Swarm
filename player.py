@@ -12,7 +12,6 @@ class Player(object):
 		self.pos = Vec2d(WINDOW_X/2,WINDOW_Y/2)
 		self.vel = Vec2d(0.0,0.0)
 		self.acc = Vec2d(0.0,0.0)
-		self.bullets = []
 		self.forwardEngineOn = False
 		self.reverseEngineOn = False
 		self.scale = 2
@@ -107,23 +106,6 @@ class Player(object):
 		if(self.pos.y < 0):
 			self.pos.y = WINDOW_Y
 
-		# update all of this players bullet positions
-		for bullet in self.bullets:
-			bullet.update(dt)
-			#delete bullets that have gone out of bounds
-			if (bullet.pos.x > WINDOW_X):
-				self.bullets.remove(bullet)
-				continue
-			if (bullet.pos.x < 0):
-				self.bullets.remove(bullet)
-				continue
-			if (bullet.pos.y > WINDOW_Y):
-				self.bullets.remove(bullet)
-				continue
-			if (bullet.pos.y < 0):
-				self.bullets.remove(bullet)
-				continue
-
 		# status updates
 		self.status_update()
 
@@ -132,7 +114,10 @@ class Player(object):
 		point_2 = self.shipVertices[1].rotate(self.angle, self.pos)
 		point_3 = self.shipVertices[2].rotate(self.angle, self.pos)
 		point_4 = self.shipVertices[3].rotate(self.angle, self.pos)
-		pygame.draw.polygon(SCREEN, WHITE, (point_1, point_2, point_3, point_4) ,1)
+		if self.stunned:
+			pygame.draw.polygon(SCREEN, (100,100,255), (point_1, point_2, point_3, point_4) ,1)
+		else:
+			pygame.draw.polygon(SCREEN, WHITE, (point_1, point_2, point_3, point_4) ,1)
 		if (self.forwardEngineOn):
 			point_1 = self.exhaustVertices1[0].rotate(self.angle, self.pos)
 			point_2 = self.exhaustVertices1[1].rotate(self.angle, self.pos)
@@ -150,11 +135,9 @@ class Player(object):
 			point_3 = self.exhaustVertices1[2].rotate(self.angle, self.pos)
 			point_4 = self.exhaustVertices1[3].rotate(self.angle, self.pos)
 			pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
-		for bullet in self.bullets:
-			bullet.draw()
 
 	def shoot(self):
-		self.bullets.append(Bullet(self.pos, self.vel, self.angle,bullettype=1))
+		playerBullets.append(Bullet(self.pos, self.vel, self.angle,bullettype=1))
 		self.fire_sound.play()
 
 	def forwardEngine_activate(self):

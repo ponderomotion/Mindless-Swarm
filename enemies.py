@@ -15,7 +15,6 @@ class Enemy(object):
 		self.pos = Vec2d(init_pos.x,init_pos.x)
 		self.vel = Vec2d(init_vel.x,init_vel.y)
 		self.acc = Vec2d(0.0,0.0)
-		self.bullets = []
 		self.forwardEngineOn = False
 		self.reverseEngineOn = False
 		self.scale = 2
@@ -111,23 +110,6 @@ class Enemy(object):
 		if(self.pos.y < 0):
 			self.pos.y = WINDOW_Y
 
-		# update all of this players bullet positions
-		for bullet in self.bullets:
-			bullet.update(dt)
-			#delete bullets that have gone out of bounds
-			if (bullet.pos.x > WINDOW_X):
-				self.bullets.remove(bullet)
-				continue
-			if (bullet.pos.x < 0):
-				self.bullets.remove(bullet)
-				continue
-			if (bullet.pos.y > WINDOW_Y):
-				self.bullets.remove(bullet)
-				continue
-			if (bullet.pos.y < 0):
-				self.bullets.remove(bullet)
-				continue
-
 	def display(self):
 		# todo: make these rotations more efficient using something like this:
 		# http://gis.stackexchange.com/questions/23587/how-do-i-rotate-the-polygon-about-an-anchor-point-using-python-script
@@ -143,16 +125,12 @@ class Enemy(object):
 		else:
 			pygame.draw.polygon(SCREEN, (255,0,255), (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
 
-
-		for bullet in self.bullets:
-			bullet.draw()
-
 	def shoot(self):
 		if(self.type==1):
 			bullettype = 2
 		if(self.type==2):
 			bullettype = 3
-		self.bullets.append(Bullet(self.pos, self.vel, self.angle, bullettype=bullettype))
+		enemyBullets.append(Bullet(self.pos, self.vel, self.angle, bullettype=bullettype))
 		self.fire_sound.play()
 
 	def forwardEngine_activate(self):

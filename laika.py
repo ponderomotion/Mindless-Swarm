@@ -133,40 +133,37 @@ def main():
 
 		spawnEnemies()
 		
-		player1.update(dt)
-		for enemy in enemyList:
-			enemy.update(dt)
-		
 		# check enemy bullet collisions with player here
 		if not god_mode:
 			playerorigin = player1.shipVertices[0].rotate(player1.angle, player1.pos)
-			for enemy in enemyList:
-				for bullet in enemy.bullets:
-					if (bullet.pos.x < playerorigin[0] + 6):
-						if (bullet.pos.x > playerorigin[0] - 6):
-							if(bullet.pos.y < playerorigin[1] + 6):
-								if(bullet.pos.y > playerorigin[1] - 6):
-									# player has been hit, decide what to do to them depending
-									# on bullet type
-									if(bullet.type == 3):
-										player1.stun()
-									else: # player dies
-										time_passed = 0
-										kill_score = 0
-										bgspeed = 1
-										del enemyList[:]
-										if(current_score >= topScore):
-											topScore = current_score
-											highscores.high_score = topScore
-											writescores(highscores)
-											deathScreen(1.5, highscore=True)
-										else:
-											deathScreen(1, highscore=False)
+			for bullet in enemyBullets:
+				if (bullet.pos.x < playerorigin[0] + 6):
+					if (bullet.pos.x > playerorigin[0] - 6):
+						if(bullet.pos.y < playerorigin[1] + 6):
+							if(bullet.pos.y > playerorigin[1] - 6):
+								# player has been hit, decide what to do to them depending
+								# on bullet type
+								if(bullet.type == 3):
+									player1.stun()
+									enemyBullets.remove(bullet)
+								else: # player dies
+									time_passed = 0
+									kill_score = 0
+									bgspeed = 1
+									del enemyList[:]
+									del enemyBullets[:]
+									if(current_score >= topScore):
+										topScore = current_score
+										highscores.high_score = topScore
+										writescores(highscores)
+										deathScreen(1.5, highscore=True)
+									else:
+										deathScreen(1, highscore=False)
 										
 
 
 		# check player bullet collisions with enemies here
-		for bullet in player1.bullets:
+		for bullet in playerBullets:
 			for enemy in enemyList:
 				enemyorigin = Vec2d(enemy.pos.x, enemy.pos.y + 9)
 				enemyorigin = enemyorigin.rotate(enemy.angle, enemy.pos)
@@ -175,11 +172,12 @@ def main():
 						if (bullet.pos.y < enemyorigin[1] + 8):
 							if (bullet.pos.y > enemyorigin[1] - 8):
 								enemy.death_sound.play()
+								explosionList.append(explosion(enemy.pos))
 								enemyList.remove(enemy)
 								try:
 									#dont crash here because there's a possibilty that the
 									#bullet is also pruned by screen edge
-									player1.bullets.remove(bullet)
+									playerBullets.remove(bullet)
 								except:
 									None
 								kill_score += 5000
@@ -203,9 +201,26 @@ def main():
 				point_4 = (enemyorigin[0] - 7, enemyorigin[1] + 7)
 				pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
 
+		# update all positions and draw
+		for bullet in enemyBullets:
+			bullet.update(dt)
+			bullet.draw()
+		for bullet in playerBullets:
+			bullet.update(dt)
+			bullet.draw()
 		for enemy in enemyList:
+			enemy.update(dt)
 			enemy.display()
+		for expl in explosionList:
+			expl.update_and_draw()
+
+		player1.update(dt)
 		player1.display()
+
+		# remove things that are no longer in the game
+		pruneBullets(enemyBullets)
+		pruneBullets(playerBullets)
+		pruneExplosions(explosionList)
 
 		pygame.display.flip()
       
