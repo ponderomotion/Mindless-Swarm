@@ -10,7 +10,7 @@ import random
 enemyList = []
 
 class Enemy(object):
-	def __init__(self, name = "enemy", init_pos=Vec2d(WINDOW_X/2,WINDOW_Y/2), init_vel=Vec2d(0,0),init_angle=0):
+	def __init__(self, name = "enemy", init_pos=Vec2d(WINDOW_X/2,WINDOW_Y/2), init_vel=Vec2d(0,0),init_angle=0, enemytype=1):
 		self.name = name
 		self.pos = Vec2d(init_pos.x,init_pos.x)
 		self.vel = Vec2d(init_vel.x,init_vel.y)
@@ -22,6 +22,11 @@ class Enemy(object):
 		self.angle = init_angle
 		self.maxSpeed = 50
 		self.bulletSpeed = 200
+
+		# ENEMY TYPES #
+		# 1 - Standard green with lethal red bullets
+		# 2 - Purple with Blue stun bullets
+		self.type = enemytype
 
 		# media
 		self.fire_sound = load_sound('wub.wav')
@@ -108,6 +113,7 @@ class Enemy(object):
 
 		# update all of this players bullet positions
 		for bullet in self.bullets:
+			bullet.update(dt)
 			#delete bullets that have gone out of bounds
 			if (bullet.pos.x > WINDOW_X):
 				self.bullets.remove(bullet)
@@ -122,9 +128,6 @@ class Enemy(object):
 				self.bullets.remove(bullet)
 				continue
 
-			bullet.pos.x = bullet.pos.x + bullet.vel.x * dt
-			bullet.pos.y = bullet.pos.y + bullet.vel.y * dt
-
 	def display(self):
 		# todo: make these rotations more efficient using something like this:
 		# http://gis.stackexchange.com/questions/23587/how-do-i-rotate-the-polygon-about-an-anchor-point-using-python-script
@@ -135,13 +138,21 @@ class Enemy(object):
 		point_5 = self.shipVertices[4].rotate(self.angle, self.pos)
 		point_6 = self.shipVertices[5].rotate(self.angle, self.pos)
 
-		pygame.draw.polygon(SCREEN, GREEN, (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
-		
+		if(self.type==1):
+			pygame.draw.polygon(SCREEN, GREEN, (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
+		else:
+			pygame.draw.polygon(SCREEN, (255,0,255), (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
+
+
 		for bullet in self.bullets:
-			pygame.draw.circle(SCREEN, RED, (int(bullet.pos.x), int(bullet.pos.y)), 2)
+			bullet.draw()
 
 	def shoot(self):
-		self.bullets.append(Bullet(self.pos, self.vel, self.angle, speed = self.bulletSpeed))
+		if(self.type==1):
+			bullettype = 2
+		if(self.type==2):
+			bullettype = 3
+		self.bullets.append(Bullet(self.pos, self.vel, self.angle, bullettype=bullettype))
 		self.fire_sound.play()
 
 	def forwardEngine_activate(self):
@@ -156,3 +167,15 @@ class Enemy(object):
 	def reverseEngine_deactivate(self):
 		self.reverseEngineOn = False
 		self.engine_channel.pause()
+
+
+def spawnEnemies():
+	#spawn enemies randomly
+	# 0.1% chance of spawning an enemy
+	rand1 = random.random()
+	if(rand1<0.005):
+		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=1)
+		enemyList.append(new_enemy)
+	if(rand1<0.02 and rand1>0.005):
+		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=2)
+		enemyList.append(new_enemy)
