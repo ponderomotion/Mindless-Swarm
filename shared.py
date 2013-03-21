@@ -21,7 +21,7 @@ RIGHT = 2
 FORWARDS = 1
 BACKWARDS = 2
 
-SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.DOUBLEBUF)
+SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE)
 clock = pygame.time.Clock()
 
 enemyBullets = []
@@ -46,11 +46,17 @@ class Bullet(object):
 			self.speed = 50
 		self.pos = Vec2d(init_pos.x, init_pos.y)
 		self.vel = Vec2d(init_vel.x, init_vel.y)
+		self.physacc = Vec2d(0, 0)
 		self.vel.x = (self.speed + abs(self.vel.x)) * sin(radians(angle))
 		self.vel.y = -(self.speed + abs(self.vel.y)) * cos(radians(angle))
 	def update(self, dt):
+		self.vel.x = self.vel.x + self.physacc.x * dt
+		self.vel.x = self.vel.x + self.physacc.y * dt
+
 		self.pos.x = self.pos.x + self.vel.x * dt
 		self.pos.y = self.pos.y + self.vel.y * dt
+
+		self.physacc = Vec2d(0, 0)
 	def draw(self):
 		if (self.type == 1):
 			pygame.draw.circle(SCREEN, WHITE, (int(self.pos.x), int(self.pos.y)), 2)

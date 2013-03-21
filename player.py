@@ -4,7 +4,6 @@ from pygame.locals import *
 from shared import *
 from audio import *
 
-
 #define the players ship etc.
 class Player(object):
 	def __init__(self, name = "p1"):
@@ -12,6 +11,7 @@ class Player(object):
 		self.pos = Vec2d(WINDOW_X/2,WINDOW_Y/2)
 		self.vel = Vec2d(0.0,0.0)
 		self.acc = Vec2d(0.0,0.0)
+		self.physacc = Vec2d(0.0,0.0)
 		self.forwardEngineOn = False
 		self.reverseEngineOn = False
 		self.scale = 2
@@ -19,6 +19,9 @@ class Player(object):
 		self.maxSpeed = 700
 		self.bulletSpeed = 300
 		self.stunned = False
+		self.dead = False
+
+		self.shieldstrength = 2
 
 		# media
 		self.fire_sound = load_sound('pew.wav')
@@ -59,8 +62,12 @@ class Player(object):
 	def update(self,dt):
 		# semi-implicit Euler integration
 		# friction coefficient 0.99
-		self.vel.x = (0.99 * self.vel.x) + self.acc.x * dt
-		self.vel.y = (0.99 * self.vel.y) + self.acc.y * dt
+		self.vel.x = (0.99 * self.vel.x) + (self.acc.x+self.physacc.x) * dt
+		self.vel.y = (0.99 * self.vel.y) + (self.acc.y+self.physacc.y) * dt
+		
+		#reset
+		self.physacc = Vec2d(0.0,0.0)
+
 		if self.vel.x > self.maxSpeed:
 			self.vel.x = self.maxSpeed
 		if self.vel.y > self.maxSpeed:
@@ -135,6 +142,11 @@ class Player(object):
 			point_3 = self.exhaustVertices1[2].rotate(self.angle, self.pos)
 			point_4 = self.exhaustVertices1[3].rotate(self.angle, self.pos)
 			pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
+		if (self.shieldstrength > 0):
+			if(self.shieldstrength == 2):
+				pygame.draw.circle(SCREEN, (100,100,255), (int(self.pos.x), int(self.pos.y)), 12,1)
+			if(self.shieldstrength == 1):
+				pygame.draw.circle(SCREEN, (50,50,120), (int(self.pos.x), int(self.pos.y)), 12,1)
 
 	def shoot(self):
 		playerBullets.append(Bullet(self.pos, self.vel, self.angle,bullettype=1))
@@ -152,11 +164,19 @@ class Player(object):
 	def reverseEngine_deactivate(self):
 		self.reverseEngineOn = False
 		self.engine_channel.pause()
-
+	def take_hit(self):
+		self.shieldstrength = self.shieldstrength - 1
+		print self.shieldstrength
+		if self.shieldstrength < 0:
+			return True
+		else:
+			return False
 	def stun(self):
 		self.stunned = True
 		self.stuntimer = pygame.time.Clock()
 		self.stuntime = 0.0
+	def reset(self):
+		self.shieldstrength = 2
 
 	def status_update(self):
 		# check any player statuses and clear them if enough time has elapsed
@@ -164,3 +184,5 @@ class Player(object):
 			self.stuntime = self.stuntime + self.stuntimer.tick() / 1000.00
 			if(self.stuntime > 1.5):
 				self.stunned = False
+
+

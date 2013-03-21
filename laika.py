@@ -9,13 +9,13 @@ from shared import *
 from random import random, randint
 from screens import *
 from player import *
+from gravity_object import *
 
 def main():
 	pygame.init()
 	topScore = 0
 	current_score = 0
 	kill_score = 0
-	player1 = Player()
 	displayFont = pygame.font.SysFont("consola", 16)
 	pygame.display.set_caption("Laika")
 	state = 0
@@ -24,7 +24,9 @@ def main():
 	wave = 0
 	rotation = NONE
 	movement = NONE
+	player1 = Player()
 	god_mode = False
+	spawn_entities = True
 
 	try:
 		highscores = readhighscores()
@@ -69,6 +71,10 @@ def main():
 					god_mode = not god_mode # toggle
 				elif event.key == K_p:
 					state = deathScreen(1.5)
+				elif event.key == K_b:
+					gravList.append(BlackHole(Vec2d(WINDOW_X,random()*WINDOW_Y),Vec2d(-20.0,0.0),1))
+				elif event.key == K_l:
+					spawn_entities = not spawn_entities
 			if event.type == KEYUP:
 				if (event.key == K_d or event.key == K_a):
 					rotation = NONE
@@ -131,7 +137,9 @@ def main():
 		#dt = clock.tick() / 1000.00
 		dt = 0.02
 
-		spawnEnemies()
+		if spawn_entities:
+			spawnEnemies()
+			spawnBlackholes()
 		
 		# check enemy bullet collisions with player here
 		if not god_mode:
@@ -146,19 +154,11 @@ def main():
 								if(bullet.type == 3):
 									player1.stun()
 									enemyBullets.remove(bullet)
-								else: # player dies
-									time_passed = 0
-									kill_score = 0
-									bgspeed = 1
-									del enemyList[:]
-									del enemyBullets[:]
-									if(current_score >= topScore):
-										topScore = current_score
-										highscores.high_score = topScore
-										writescores(highscores)
-										state = deathScreen(1.5, highscore=True)
-									else:
-										state = deathScreen(1, highscore=False)
+								else: # player takes a hit and maybe dies
+									enemyBullets.remove(bullet)
+									if (player1.take_hit()): #take_hit returns true if dead
+										player1.dead = True
+										
 										
 
 
@@ -213,6 +213,10 @@ def main():
 			enemy.display()
 		for expl in explosionList:
 			expl.update_and_draw()
+		for obj in gravList:
+			obj.update(dt)
+			obj.attract(player1)
+			obj.draw()
 
 		player1.update(dt)
 		player1.display()
@@ -221,6 +225,25 @@ def main():
 		pruneBullets(enemyBullets)
 		pruneBullets(playerBullets)
 		pruneExplosions(explosionList)
+		pruneGravs(gravList)
+
+		# did player died?
+		if(player1.dead):
+			time_passed = 0
+			kill_score = 0
+			bgspeed = 1
+			del enemyList[:]
+			del enemyBullets[:]
+			del gravList[:]
+			if(current_score >= topScore):
+				topScore = current_score
+				highscores.high_score = topScore
+				writescores(highscores)
+				state = deathScreen(1.5, highscore=True)
+			else:
+				state = deathScreen(1, highscore=False)
+			player1.reset()
+			player1.dead = False
 
 		pygame.display.flip()
       

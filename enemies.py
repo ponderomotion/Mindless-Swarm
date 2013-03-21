@@ -15,11 +15,12 @@ class Enemy(object):
 		self.pos = Vec2d(init_pos.x,init_pos.x)
 		self.vel = Vec2d(init_vel.x,init_vel.y)
 		self.acc = Vec2d(0.0,0.0)
+		self.physacc = Vec2d(0.0,0.0)
 		self.forwardEngineOn = False
 		self.reverseEngineOn = False
 		self.scale = 2
 		self.angle = init_angle
-		self.maxSpeed = 50
+		self.maxSpeed = 80
 		self.bulletSpeed = 200
 
 		# ENEMY TYPES #
@@ -75,17 +76,17 @@ class Enemy(object):
 
 			rand1 = random.random()
 			if(rand1 < 0.8): #80% chance of activating thrusters
-				self.acc.x = 300 * sin(radians(self.angle))
-				self.acc.y = -300 * cos(radians(self.angle))
+				self.acc.x = 20 * sin(radians(self.angle))
+				self.acc.y = -20 * cos(radians(self.angle))
 			rand1 = random.random()
 			if(rand1 < 0.01): #1% chance of shooting
 				self.shoot()
 		if (self.type == 3):
 			# always face the player
 			None
-		
-		self.vel.x = self.vel.x + self.acc.x * dt
-		self.vel.y = self.vel.y + self.acc.y * dt
+
+		self.vel.x = self.vel.x + (self.acc.x + self.physacc.x) * dt
+		self.vel.y = self.vel.y + (self.acc.y + self.physacc.y) * dt
 
 		if abs(self.vel.x) > self.maxSpeed:
 			self.vel.x = copysign(self.maxSpeed, self.vel.x)

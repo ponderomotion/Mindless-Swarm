@@ -34,7 +34,7 @@ def deathScreen(time=5,highscore=False):
 	contFont = pygame.font.SysFont("consola", 30)
 
 	gameover_message = bigFont.render("GAME OVER", True, (0,0,0))
-	cont_message = contFont.render("Press Space to Try again or Q to Quit",True, (0,0,0))
+	cont_message = contFont.render("Press N for a (N)ew game or Q to (Q)uit",True, (0,0,0))
 	if(highscore):
 		death_message = displayFont.render("You died but....NEW HIGH SCORE!", True, (0,0,0))
 	else:
@@ -42,7 +42,7 @@ def deathScreen(time=5,highscore=False):
 
 	cont = False
 	while (cont==False):
-		SCREEN.fill((random()*255,random()*255,random()*255))
+		SCREEN.fill((random()*255,random()*255,random()*100))
 		timePassed = timePassed + dsclock.tick() / 1000.00
 		SCREEN.blit(gameover_message, (WINDOW_X/2 - gameover_message.get_width()/2,WINDOW_Y/2 - 140))
 		SCREEN.blit(death_message, (WINDOW_X/2 - death_message.get_width()/2,WINDOW_Y/2 + 30))
@@ -54,13 +54,13 @@ def deathScreen(time=5,highscore=False):
 				cont = True
 				return(1)
 			if event.type == KEYDOWN:
-				if event.key == K_SPACE:
+				if event.key == K_n:
 					cont = True
 				elif event.key == K_q:
 					cont = True
 					return(1)
 
 		pygame.display.update()
-		pygame.time.wait(80)
+		pygame.time.wait(120)
 
 	return(0)
