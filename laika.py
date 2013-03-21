@@ -16,7 +16,7 @@ def main():
 	topScore = 0
 	current_score = 0
 	kill_score = 0
-	displayFont = pygame.font.SysFont("consola", 16)
+	displayFont = pygame.font.SysFont("consola", 22)
 	pygame.display.set_caption("Laika")
 	state = 0
 	clock = pygame.time.Clock()
@@ -59,6 +59,8 @@ def main():
 			if event.type == KEYDOWN:
 				if event.key == K_d:
 					rotation = RIGHT
+				elif event.key == K_ESCAPE:
+					state = pauseScreen(player1)
 				elif event.key == K_a:
 					rotation = LEFT
 				elif event.key == K_w:
@@ -122,11 +124,11 @@ def main():
 			bgTwo_x = bgOne_x + bgOne.get_width()
 
 		current_score = int(time_passed*1000) + kill_score
-		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,120,255))
+		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,200,255))
 		if(current_score > topScore):
 			if not god_mode: 
 				topScore = current_score 
-		top_score_text = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
+		top_score_text = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,200))
 		if god_mode:
 			god_mode_text = displayFont.render("GOD MODE ENABLED", True, (100,255,100))
 			SCREEN.blit(god_mode_text, (10, 550))
@@ -228,7 +230,7 @@ def main():
 		pruneGravs(gravList)
 
 		# did player died?
-		if(player1.dead):
+		if(player1.dead and not god_mode):
 			time_passed = 0
 			kill_score = 0
 			bgspeed = 1

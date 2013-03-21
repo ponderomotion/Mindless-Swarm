@@ -21,7 +21,7 @@ RIGHT = 2
 FORWARDS = 1
 BACKWARDS = 2
 
-SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE)
+SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 
 enemyBullets = []

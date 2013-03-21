@@ -1,6 +1,7 @@
 from vector import *
 import pygame
 from pygame.locals import *
+import pygame.gfxdraw
 from shared import *
 from audio import *
 
@@ -124,7 +125,9 @@ class Player(object):
 		if self.stunned:
 			pygame.draw.polygon(SCREEN, (100,100,255), (point_1, point_2, point_3, point_4) ,2)
 		else:
-			pygame.draw.polygon(SCREEN, WHITE, (point_1, point_2, point_3, point_4) ,1)
+			#pygame.draw.polygon(SCREEN, WHITE, (point_1, point_2, point_3, point_4) ,1)
+			#pygame.draw.aalines(SCREEN, WHITE, True, (point_1, point_2, point_3, point_4) ,False)
+			pygame.gfxdraw.aapolygon(SCREEN, (point_1, point_2, point_3, point_4), WHITE)
 		if (self.forwardEngineOn):
 			point_1 = self.exhaustVertices1[0].rotate(self.angle, self.pos)
 			point_2 = self.exhaustVertices1[1].rotate(self.angle, self.pos)
@@ -144,7 +147,8 @@ class Player(object):
 			pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
 		if (self.shieldstrength > 0):
 			if(self.shieldstrength == 2):
-				pygame.draw.circle(SCREEN, (100,100,255), (int(self.pos.x), int(self.pos.y)), 12,1)
+				#pygame.draw.circle(SCREEN, (100,100,255), (int(self.pos.x), int(self.pos.y)), 12,1)
+				pygame.gfxdraw.aacircle(SCREEN, int(self.pos.x), int(self.pos.y), 12, (100,100,255))
 			if(self.shieldstrength == 1):
 				pygame.draw.circle(SCREEN, (50,50,120), (int(self.pos.x), int(self.pos.y)), 12,1)
 

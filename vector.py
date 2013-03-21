@@ -12,3 +12,5 @@ class Vec2d():
 		newx = origin.x + ((self.x - origin.x) * cos(theta) - (self.y - origin.y) * sin(theta))
 		newy = origin.y + ((self.x - origin.x) * sin(theta) + (self.y - origin.y) * cos(theta))
 		return newx,newy
+	def __add__(self,other):
+		return Vec2d(self.x + other.x, self.y + other.y)

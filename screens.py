@@ -64,3 +64,35 @@ def deathScreen(time=5,highscore=False):
 		pygame.time.wait(120)
 
 	return(0)
+
+
+# returns 1 if user decides to quit
+def pauseScreen(player1): 
+ 	cont = False
+	bigFont = pygame.font.SysFont("andale mono", 80)
+	contFont = pygame.font.SysFont("consola", 30)
+
+	pause_message = bigFont.render("PAUSED", True, (200,255,255))
+	cont_message = contFont.render("Press Space to continue or Q to (Q)uit",True, (255,255,200))
+
+	SCREEN.blit(pause_message, (WINDOW_X/2 - pause_message.get_width()/2,WINDOW_Y/2 - 140))
+	SCREEN.blit(cont_message, (WINDOW_X/2 - cont_message.get_width()/2,WINDOW_Y/2 + 30))
+
+	pygame.display.update()
+
+	while (cont==False):
+		#SCREEN.fill((random()*255,random()*255,random()*100))
+		
+		# see if space or q has been pressed
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				cont = True
+				return(1)
+			if event.type == KEYDOWN:
+				if event.key == K_SPACE:
+					cont = True
+				elif event.key == K_q:
+					cont = True
+					return(1)
+
+	return(0)
