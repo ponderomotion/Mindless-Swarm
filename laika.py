@@ -16,8 +16,6 @@ def main():
 	current_score = 0
 	kill_score = 0
 	player1 = Player()
-	new_enemy = Enemy()
-	enemyList.append(new_enemy)
 	displayFont = pygame.font.SysFont("consola", 16)
 	pygame.display.set_caption("Laika")
 	state = 0
@@ -69,8 +67,8 @@ def main():
 					player1.shoot()
 				elif event.key == K_g:
 					god_mode = not god_mode # toggle
-				#elif event.key == K_p:
-					#deathScreen(2.5)
+				elif event.key == K_p:
+					state = deathScreen(1.5)
 			if event.type == KEYUP:
 				if (event.key == K_d or event.key == K_a):
 					rotation = NONE
@@ -124,7 +122,7 @@ def main():
 				topScore = current_score 
 		top_score_text = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,0))
 		if god_mode:
-			god_mode_text = displayFont.render("GOD MODE", True, (100,255,100))
+			god_mode_text = displayFont.render("GOD MODE ENABLED", True, (100,255,100))
 			SCREEN.blit(god_mode_text, (10, 550))
 		SCREEN.blit(current_score_text, (10, 30))
 		SCREEN.blit(top_score_text, (10, 10))
@@ -158,9 +156,9 @@ def main():
 										topScore = current_score
 										highscores.high_score = topScore
 										writescores(highscores)
-										deathScreen(1.5, highscore=True)
+										state = deathScreen(1.5, highscore=True)
 									else:
-										deathScreen(1, highscore=False)
+										state = deathScreen(1, highscore=False)
 										
 
 

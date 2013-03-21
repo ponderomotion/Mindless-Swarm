@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from vector import *
-import pickle
+import cPickle as pickle
 from random import random
 
 WINDOW_X = 800

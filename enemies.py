@@ -26,6 +26,12 @@ class Enemy(object):
 		# 1 - Standard green with lethal red bullets
 		# 2 - Purple with Blue stun bullets
 		self.type = enemytype
+		if self.type == 1:
+			self.maxspeed = 50
+		if self.type == 2:
+			self.maxspeed = 50
+		if self.type == 3:
+			self.maxspeed = 100
 
 		# media
 		self.fire_sound = load_sound('wub.wav')
@@ -62,19 +68,22 @@ class Enemy(object):
 	def update(self, dt):
 		# semi-implicit Euler integration
 		
-		# friction coefficient 0.99
+		# dumbest enemies
+		if (self.type == 1) or (self.type == 2):
+			# AI : just do a random walk
+			self.angle = self.angle + 10*(random.random()-0.5)
 
-		# AI : just do a random walk
-		self.angle = self.angle + 10*(random.random()-0.5)
-
-		rand1 = random.random()
-		if(rand1 < 0.8): #80% chance of activating thrusters
-			self.acc.x = 300 * sin(radians(self.angle))
-			self.acc.y = -300 * cos(radians(self.angle))
-		rand1 = random.random()
-		if(rand1 < 0.01): #1% chance of shooting
-			self.shoot()
-
+			rand1 = random.random()
+			if(rand1 < 0.8): #80% chance of activating thrusters
+				self.acc.x = 300 * sin(radians(self.angle))
+				self.acc.y = -300 * cos(radians(self.angle))
+			rand1 = random.random()
+			if(rand1 < 0.01): #1% chance of shooting
+				self.shoot()
+		if (self.type == 3):
+			# always face the player
+			None
+		
 		self.vel.x = self.vel.x + self.acc.x * dt
 		self.vel.y = self.vel.y + self.acc.y * dt
 
@@ -124,6 +133,7 @@ class Enemy(object):
 			pygame.draw.polygon(SCREEN, GREEN, (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
 		else:
 			pygame.draw.polygon(SCREEN, (255,0,255), (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
+
 
 	def shoot(self):
 		if(self.type==1):

@@ -16,7 +16,7 @@ class Player(object):
 		self.reverseEngineOn = False
 		self.scale = 2
 		self.angle = 0
-		self.maxSpeed = 500
+		self.maxSpeed = 700
 		self.bulletSpeed = 300
 		self.stunned = False
 
