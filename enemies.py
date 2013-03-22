@@ -86,10 +86,10 @@ class Enemy(object):
 			# always face the player
 		self.angle = self.aim_at(player1.pos)
 
-		# 90% chance of thrusters firing
+		# 90% chance of thrusters firing to make them less predictable
 		if(random.random()<0.9):
-			self.acc.x = 130 * sin(radians(self.angle))
-			self.acc.y = -130 * cos(radians(self.angle))
+			self.acc.x = 140 * sin(radians(self.angle))
+			self.acc.y = -140 * cos(radians(self.angle))
 
 		# .9% chance of shooting
 		if(random.random()<0.009):
