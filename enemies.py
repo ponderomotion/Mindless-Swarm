@@ -70,30 +70,30 @@ class Enemy(object):
 		# semi-implicit Euler integration
 		
 		# dumbest enemies
-		if (self.type == 1) or (self.type == 2):
-			# AI : just do a random walk		
-			self.angle = self.angle + 10*(random.random()-0.5)
-			rand1 = random.random()
-			if(rand1 < 0.8): #80% chance of activating thrusters
-				self.acc.x = 20 * sin(radians(self.angle))
-				self.acc.y = -20 * cos(radians(self.angle))
-			rand1 = random.random()
-			if(rand1 < 0.005): #.5% chance of shooting
-				self.shoot()
+		# if (self.type == 1) or (self.type == 2):
+		# 	# AI : just do a random walk		
+		# 	self.angle = self.angle + 10*(random.random()-0.5)
+		# 	rand1 = random.random()
+		# 	if(rand1 < 0.8): #80% chance of activating thrusters
+		# 		self.acc.x = 20 * sin(radians(self.angle))
+		# 		self.acc.y = -20 * cos(radians(self.angle))
+		# 	rand1 = random.random()
+		# 	if(rand1 < 0.005): #.5% chance of shooting
+		# 		self.shoot()
 
-		# slightly smarter
-		if (self.type == 3):
+		# # slightly smarter
+		# if (self.type == 3):
 			# always face the player
-			self.angle = self.aim_at(player1.pos)
+		self.angle = self.aim_at(player1.pos)
 
-			# always activate thrusters
-			self.acc.x = 90 * sin(radians(self.angle))
-			self.acc.y = -90 * cos(radians(self.angle))
+		# 90% chance of thrusters firing
+		if(random.random()<0.9):
+			self.acc.x = 130 * sin(radians(self.angle))
+			self.acc.y = -130 * cos(radians(self.angle))
 
-			# .5% chance of shooting
-			if(random.random()<0.005):
-				self.shoot()
-
+		# .9% chance of shooting
+		if(random.random()<0.009):
+			self.shoot()
 
 		# update equations of motion
 		self.vel.x = self.vel.x + (self.acc.x + self.physacc.x) * dt
@@ -213,14 +213,31 @@ class Enemy(object):
 def spawnEnemies():
 	#spawn enemies randomly
 	# 0.1% chance of spawning an enemy
-	rand1 = random.random()
-	if(rand1<0.002):
-		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=1)
-		enemyList.append(new_enemy)
-	if(rand1<0.005 and rand1>0.002):
-		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=2)
-		enemyList.append(new_enemy)
-	if(rand1<0.007 and rand1>0.005):
-		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=3)
+	spawnchance = 0.01
+
+	if(random.random()<spawnchance):
+
+		rand4 = random.randint(1,4)
+		randy = random.random()*WINDOW_Y
+		randx = random.random()*WINDOW_X
+
+		# choose which wall to spawn on
+		if(rand4==1): #WEST
+			initxpos = 2
+			initypos = randy
+		if(rand4==2): #EAST
+			initxpos = WINDOW_X-2
+			initypos = randy
+		if(rand4==3): #NORTH
+			initxpos = randx
+			initypos = 2
+		if(rand4==4): #SOUTH
+			initxpos = randx
+			initypos = WINDOW_Y-2
+
+		etype = random.randint(1,2)
+		#etype = random.randint(1,3)
+
+		new_enemy = Enemy(init_angle = (random.random()*360),init_pos=Vec2d(initxpos,initypos), enemytype=etype)
 		enemyList.append(new_enemy)
 

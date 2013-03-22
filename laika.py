@@ -256,6 +256,7 @@ def main():
 			player1.dead = False
 
 		pygame.display.flip()
+		clock.tick(60)
       
 main()
 pygame.quit()
