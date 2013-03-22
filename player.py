@@ -105,14 +105,28 @@ class Player(object):
 			self.exhaustVertices1[3] = Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale))
 
 		# periodic boundary
+		# if(self.pos.x > WINDOW_X):
+		# 	self.pos.x = 0
+		# if(self.pos.x < 0):
+		# 	self.pos.x = WINDOW_X
+		# if(self.pos.y > WINDOW_Y):
+		# 	self.pos.y = 0
+		# if(self.pos.y < 0):
+		# 	self.pos.y = WINDOW_Y
+
+		# hard boundaries
 		if(self.pos.x > WINDOW_X):
-			self.pos.x = 0
-		if(self.pos.x < 0):
 			self.pos.x = WINDOW_X
+			self.vel.x = -0.7*self.vel.x
+		if(self.pos.x < 0):
+			self.pos.x = 0
+			self.vel.x = -0.7*self.vel.x
 		if(self.pos.y > WINDOW_Y):
-			self.pos.y = 0
-		if(self.pos.y < 0):
 			self.pos.y = WINDOW_Y
+			self.vel.y = -0.7*self.vel.y
+		if(self.pos.y < 0):
+			self.pos.y = 0
+			self.vel.y = -0.7*self.vel.y
 
 		# status updates
 		self.status_update()

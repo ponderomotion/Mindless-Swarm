@@ -14,6 +14,7 @@ from gravity_object import *
 def main():
 	pygame.init()
 	topScore = 0
+	fullScreen = True
 	current_score = 0
 	kill_score = 0
 	displayFont = pygame.font.SysFont("consola", 22)
@@ -77,6 +78,13 @@ def main():
 					gravList.append(BlackHole(Vec2d(WINDOW_X,random()*WINDOW_Y),Vec2d(-20.0,0.0),1))
 				elif event.key == K_l:
 					spawn_entities = not spawn_entities
+				elif event.key == K_f:
+					#toggle fullscreen
+					fullScreen = not fullScreen
+					if(not fullScreen):
+						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+					else:
+						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 			if event.type == KEYUP:
 				if (event.key == K_d or event.key == K_a):
 					rotation = NONE
@@ -211,7 +219,7 @@ def main():
 			bullet.update(dt)
 			bullet.draw()
 		for enemy in enemyList:
-			enemy.update(dt)
+			enemy.update(dt,player1)
 			enemy.display()
 		for expl in explosionList:
 			expl.update_and_draw()

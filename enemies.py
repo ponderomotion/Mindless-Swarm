@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 from sys import exit
-from math import sin, cos, radians, copysign
+from math import sin, cos, radians, copysign, atan2, degrees
 from audio import *
 from vector import *
 from shared import *
@@ -32,7 +32,7 @@ class Enemy(object):
 		if self.type == 2:
 			self.maxspeed = 50
 		if self.type == 3:
-			self.maxspeed = 100
+			self.maxspeed = 120
 
 		# media
 		self.fire_sound = load_sound('wub.wav')
@@ -66,27 +66,41 @@ class Enemy(object):
 		self.hitboxRect.append(Vec2d(self.pos.x+(3*self.scale), self.pos.y-(5*self.scale)))
 		self.hitboxRect.append(Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale)))
 		
-	def update(self, dt):
+	def update(self, dt, player1):
 		# semi-implicit Euler integration
 		
 		# dumbest enemies
 		if (self.type == 1) or (self.type == 2):
-			# AI : just do a random walk
+			# AI : just do a random walk		
 			self.angle = self.angle + 10*(random.random()-0.5)
-
 			rand1 = random.random()
 			if(rand1 < 0.8): #80% chance of activating thrusters
 				self.acc.x = 20 * sin(radians(self.angle))
 				self.acc.y = -20 * cos(radians(self.angle))
 			rand1 = random.random()
-			if(rand1 < 0.01): #1% chance of shooting
+			if(rand1 < 0.005): #.5% chance of shooting
 				self.shoot()
+
+		# slightly smarter
 		if (self.type == 3):
 			# always face the player
-			None
+			self.angle = self.aim_at(player1.pos)
 
+			# always activate thrusters
+			self.acc.x = 90 * sin(radians(self.angle))
+			self.acc.y = -90 * cos(radians(self.angle))
+
+			# .5% chance of shooting
+			if(random.random()<0.005):
+				self.shoot()
+
+
+		# update equations of motion
 		self.vel.x = self.vel.x + (self.acc.x + self.physacc.x) * dt
 		self.vel.y = self.vel.y + (self.acc.y + self.physacc.y) * dt
+
+		self.physacc.x = 0
+		self.physacc.y = 0
 
 		if abs(self.vel.x) > self.maxSpeed:
 			self.vel.x = copysign(self.maxSpeed, self.vel.x)
@@ -98,12 +112,19 @@ class Enemy(object):
 
 		#print self.pos.x, self.vel.x, self.acc.x
 
-		self.shipVertices[0] = Vec2d(self.pos.x, self.pos.y)
-		self.shipVertices[1] = Vec2d(self.pos.x+(1*self.scale), self.pos.y+(6*self.scale))
-		self.shipVertices[2] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(2*self.scale))
-		self.shipVertices[3] = Vec2d(self.pos.x, self.pos.y+(10*self.scale))
-		self.shipVertices[4] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(2*self.scale))
-		self.shipVertices[5] = Vec2d(self.pos.x-(1*self.scale), self.pos.y+(6*self.scale))
+		if(self.type == 1 or self.type == 2):
+			self.shipVertices[0] = Vec2d(self.pos.x, self.pos.y)
+			self.shipVertices[1] = Vec2d(self.pos.x+(0.5*self.scale), self.pos.y+(6*self.scale))
+			self.shipVertices[2] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(2*self.scale))
+			self.shipVertices[3] = Vec2d(self.pos.x, self.pos.y+(10*self.scale))
+			self.shipVertices[4] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(2*self.scale))
+			self.shipVertices[5] = Vec2d(self.pos.x-(0.5*self.scale), self.pos.y+(6*self.scale))
+
+		if(self.type==3):
+			self.shipVertices[0] = Vec2d(self.pos.x, self.pos.y)
+			self.shipVertices[1] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale))
+			self.shipVertices[2] = Vec2d(self.pos.x, self.pos.y-(5*self.scale))
+			self.shipVertices[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
 
 		self.hitboxRect[0] = Vec2d(self.pos.x-(3*self.scale), self.pos.y+(5*self.scale))
 		self.hitboxRect[1] = Vec2d(self.pos.x-(3*self.scale), self.pos.y-(5*self.scale))
@@ -111,29 +132,56 @@ class Enemy(object):
 		self.hitboxRect[3] = Vec2d(self.pos.x+(3*self.scale), self.pos.y+(5*self.scale))
 
 		# periodic boundary
+		# if(self.pos.x > WINDOW_X):
+		# 	self.pos.x = 0
+		# if(self.pos.x < 0):
+		# 	self.pos.x = WINDOW_X
+		# if(self.pos.y > WINDOW_Y):
+		# 	self.pos.y = 0
+		# if(self.pos.y < 0):
+		# 	self.pos.y = WINDOW_Y
+
+		# hard boundaries
 		if(self.pos.x > WINDOW_X):
-			self.pos.x = 0
-		if(self.pos.x < 0):
 			self.pos.x = WINDOW_X
+			self.vel.x = -0.7*self.vel.x
+		if(self.pos.x < 0):
+			self.pos.x = 0
+			self.vel.x = -0.7*self.vel.x
 		if(self.pos.y > WINDOW_Y):
-			self.pos.y = 0
-		if(self.pos.y < 0):
 			self.pos.y = WINDOW_Y
+			self.vel.y = -0.7*self.vel.y
+		if(self.pos.y < 0):
+			self.pos.y = 0
+			self.vel.y = -0.7*self.vel.y
 
 	def display(self):
 		# todo: make these rotations more efficient using something like this:
 		# http://gis.stackexchange.com/questions/23587/how-do-i-rotate-the-polygon-about-an-anchor-point-using-python-script
-		point_1 = self.shipVertices[0].rotate(self.angle, self.pos)
-		point_2 = self.shipVertices[1].rotate(self.angle, self.pos)
-		point_3 = self.shipVertices[2].rotate(self.angle, self.pos)
-		point_4 = self.shipVertices[3].rotate(self.angle, self.pos)
-		point_5 = self.shipVertices[4].rotate(self.angle, self.pos)
-		point_6 = self.shipVertices[5].rotate(self.angle, self.pos)
+		
+		# type 1 and 2 have the same model
+		if(self.type==1 or self.type==2):
+			point_1 = self.shipVertices[0].rotate(self.angle, self.pos)
+			point_2 = self.shipVertices[1].rotate(self.angle, self.pos)
+			point_3 = self.shipVertices[2].rotate(self.angle, self.pos)
+			point_4 = self.shipVertices[3].rotate(self.angle, self.pos)
+			point_5 = self.shipVertices[4].rotate(self.angle, self.pos)
+			point_6 = self.shipVertices[5].rotate(self.angle, self.pos)
+		#type 3 has the same model as the player
+		if(self.type==3):
+			point_1 = self.shipVertices[0].rotate(self.angle, self.pos)
+			point_2 = self.shipVertices[1].rotate(self.angle, self.pos)
+			point_3 = self.shipVertices[2].rotate(self.angle, self.pos)
+			point_4 = self.shipVertices[3].rotate(self.angle, self.pos)
 
 		if(self.type==1):
 			pygame.draw.polygon(SCREEN, GREEN, (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
-		else:
+			#pygame.gfxdraw.aapolygon(SCREEN, (point_1, point_2, point_3, point_4, point_5, point_6), GREEN)
+		elif(self.type==2):
 			pygame.draw.polygon(SCREEN, (255,0,255), (point_1, point_2, point_3, point_4, point_5, point_6) ,1)
+			#pygame.gfxdraw.aapolygon(SCREEN, (point_1, point_2, point_3, point_4, point_5, point_6), (255,0,255))
+		elif(self.type==3):
+			pygame.draw.polygon(SCREEN, (255,200,100), (point_1, point_2, point_3, point_4) ,1)
 
 
 	def shoot(self):
@@ -141,6 +189,8 @@ class Enemy(object):
 			bullettype = 2
 		if(self.type==2):
 			bullettype = 3
+		if(self.type==3):
+			bullettype = 2
 		enemyBullets.append(Bullet(self.pos, self.vel, self.angle, bullettype=bullettype))
 		self.fire_sound.play()
 
@@ -156,15 +206,21 @@ class Enemy(object):
 	def reverseEngine_deactivate(self):
 		self.reverseEngineOn = False
 		self.engine_channel.pause()
-
+	def aim_at(self,targetpos):
+		angle = degrees(atan2(self.pos.x - targetpos.x, self.pos.y - targetpos.y))
+		return ((360 - angle) % 360)
 
 def spawnEnemies():
 	#spawn enemies randomly
 	# 0.1% chance of spawning an enemy
 	rand1 = random.random()
-	if(rand1<0.005):
+	if(rand1<0.002):
 		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=1)
 		enemyList.append(new_enemy)
-	if(rand1<0.02 and rand1>0.005):
+	if(rand1<0.005 and rand1>0.002):
 		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=2)
 		enemyList.append(new_enemy)
+	if(rand1<0.007 and rand1>0.005):
+		new_enemy = Enemy(init_angle = (random.random()*360), enemytype=3)
+		enemyList.append(new_enemy)
+
