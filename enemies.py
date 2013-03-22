@@ -20,7 +20,7 @@ class Enemy(object):
 		self.reverseEngineOn = False
 		self.scale = 2
 		self.angle = init_angle
-		self.maxSpeed = 80
+		self.maxspeed = 80
 		self.bulletSpeed = 200
 
 		# ENEMY TYPES #
@@ -28,9 +28,9 @@ class Enemy(object):
 		# 2 - Purple with Blue stun bullets
 		self.type = enemytype
 		if self.type == 1:
-			self.maxspeed = 50
+			self.maxspeed = 200
 		if self.type == 2:
-			self.maxspeed = 50
+			self.maxspeed = 300
 		if self.type == 3:
 			self.maxspeed = 120
 
@@ -87,9 +87,8 @@ class Enemy(object):
 		self.angle = self.aim_at(player1.pos)
 
 		# 90% chance of thrusters firing to make them less predictable
-		if(random.random()<0.9):
-			self.acc.x = 140 * sin(radians(self.angle))
-			self.acc.y = -140 * cos(radians(self.angle))
+		self.acc.x = random.random() * 100 * sin(radians(self.angle))
+		self.acc.y = -random.random() * 100 * cos(radians(self.angle))
 
 		# .9% chance of shooting
 		if(random.random()<0.009):
@@ -102,10 +101,10 @@ class Enemy(object):
 		self.physacc.x = 0
 		self.physacc.y = 0
 
-		if abs(self.vel.x) > self.maxSpeed:
-			self.vel.x = copysign(self.maxSpeed, self.vel.x)
-		if abs(self.vel.y) > self.maxSpeed:
-			self.vel.y = copysign(self.maxSpeed, self.vel.y)
+		if abs(self.vel.x) > self.maxspeed:
+			self.vel.x = copysign(self.maxspeed, self.vel.x)
+		if abs(self.vel.y) > self.maxspeed:
+			self.vel.y = copysign(self.maxspeed, self.vel.y)
 
 		self.pos.x = self.pos.x + self.vel.x * dt
 		self.pos.y = self.pos.y + self.vel.y * dt

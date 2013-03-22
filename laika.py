@@ -28,6 +28,7 @@ def main():
 	player1 = Player()
 	god_mode = False
 	spawn_entities = True
+	ticks_survived = 0
 
 	try:
 		highscores = readhighscores()
@@ -46,8 +47,10 @@ def main():
 
 	draw_collision_boxes=False
 
-	bgOne = pygame.image.load('assets/spacebg.png').convert()
-	bgTwo = pygame.image.load('assets/spacebg.png').convert()
+	bgOne = load_image('spacebg.png')
+	bgTwo = load_image('spacebg.png')
+	#bgOne = pygame.image.load('assets/spacebg.png').convert()
+	#bgTwo = pygame.image.load('assets/spacebg.png').convert()
 	bgOne_x = 0
 	bgTwo_x = bgOne.get_width()
 
@@ -131,7 +134,8 @@ def main():
 		if bgTwo_x <= -1 * bgTwo.get_width():
 			bgTwo_x = bgOne_x + bgOne.get_width()
 
-		current_score = int(time_passed*1000) + kill_score
+		ticks_survived += 1
+		current_score = ticks_survived*10 + kill_score
 		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,200,255))
 		if(current_score > topScore):
 			if not god_mode: 
@@ -241,6 +245,7 @@ def main():
 		if(player1.dead and not god_mode):
 			time_passed = 0
 			kill_score = 0
+			ticks_survived = 0
 			bgspeed = 1
 			del enemyList[:]
 			del enemyBullets[:]

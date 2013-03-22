@@ -17,7 +17,7 @@ def load_sound(name):
     return sound
 
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('assets', name)
     try:
         image = pygame.image.load(fullname)
     except pygame.error, message:
@@ -28,4 +28,4 @@ def load_image(name, colorkey=None):
         if colorkey is -1:
             colorkey = image.get_at((0,0))
         image.set_colorkey(colorkey, RLEACCEL)
-    return image, image.get_rect()
+    return image
