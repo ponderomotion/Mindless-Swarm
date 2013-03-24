@@ -39,7 +39,7 @@ class Enemy(object):
 		self.fire_sound.set_volume(0.3)
 		self.engine_sound = load_sound('engine_on.wav')
 		self.death_sound = load_sound('explosion.wav')
-		self.death_sound.set_volume(0.4)
+		self.death_sound.set_volume(0.2)
 
 		# give engine sound its own channel
 		# self.engine_channel = pygame.mixer.Channel(EngineChannel)

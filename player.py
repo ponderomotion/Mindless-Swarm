@@ -164,7 +164,7 @@ class Player(object):
 				#pygame.draw.circle(SCREEN, (100,100,255), (int(self.pos.x), int(self.pos.y)), 12,1)
 				pygame.gfxdraw.aacircle(SCREEN, int(self.pos.x), int(self.pos.y), 12, (100,100,255))
 			if(self.shieldstrength == 1):
-				pygame.draw.circle(SCREEN, (50,50,120), (int(self.pos.x), int(self.pos.y)), 12,1)
+				pygame.gfxdraw.aacircle(SCREEN, int(self.pos.x), int(self.pos.y), 11, (100,20,20))
 
 	def shoot(self):
 		playerBullets.append(Bullet(self.pos, self.vel, self.angle,bullettype=1))
@@ -184,7 +184,6 @@ class Player(object):
 		self.engine_channel.pause()
 	def take_hit(self):
 		self.shieldstrength = self.shieldstrength - 1
-		print self.shieldstrength
 		if self.shieldstrength < 0:
 			return True
 		else:

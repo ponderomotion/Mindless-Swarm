@@ -39,20 +39,23 @@ def main():
 		highscores.high_score = 0.0
 		highscores.high_scorer = ""
 
+	pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=65536)
 	music_channel = pygame.mixer.Channel(0)
-
 	bg_music = load_sound('XXXXX.wav')
-	#music_channel.set_volume(0.3)
+	bg_music.play()
+	music_channel.set_volume(0.3)
 	music_channel.play(bg_music, loops=-1)
 
 	draw_collision_boxes=False
 
 	bgOne = load_image('spacebg.png')
 	bgTwo = load_image('spacebg.png')
-	#bgOne = pygame.image.load('assets/spacebg.png').convert()
-	#bgTwo = pygame.image.load('assets/spacebg.png').convert()
+	fgOne = load_image('fgbg.png', alpha = True)
+	fgTwo = load_image('fgbg.png', alpha = True)
 	bgOne_x = 0
 	bgTwo_x = bgOne.get_width()
+	fgOne_x = 0
+	fgTwo_x = fgOne.get_width()
 
 	while (state==0):
 		pressed_keys = pygame.key.get_pressed()
@@ -78,7 +81,7 @@ def main():
 				elif event.key == K_p:
 					state = deathScreen(1.5)
 				elif event.key == K_b:
-					gravList.append(BlackHole(Vec2d(WINDOW_X,random()*WINDOW_Y),Vec2d(-20.0,0.0),1))
+					spawnBlackholes(forceSpawn=True)
 				elif event.key == K_l:
 					spawn_entities = not spawn_entities
 				elif event.key == K_f:
@@ -120,19 +123,30 @@ def main():
 
 		# increase background scroll speed as score increases
 		bgspeed = 1 + (current_score / 100000.0)
+		fgspeed = 2.5 * bgspeed
 
 		# draw the background
 		SCREEN.blit(bgOne,(bgOne_x,0))
 		SCREEN.blit(bgTwo,(bgTwo_x,0))
 
+		# draw the forground
+		SCREEN.blit(fgOne,(fgOne_x,0))
+		SCREEN.blit(fgTwo,(fgTwo_x,0))
+
 		bgOne_x -= bgspeed
 		bgTwo_x -= bgspeed
+		fgOne_x -= fgspeed
+		fgTwo_x -= fgspeed
 
 		# periodicity
 		if bgOne_x <= -1 * bgOne.get_width():
 			bgOne_x = bgTwo_x + bgTwo.get_width()
 		if bgTwo_x <= -1 * bgTwo.get_width():
 			bgTwo_x = bgOne_x + bgOne.get_width()
+		if fgOne_x <= -1 * fgOne.get_width():
+			fgOne_x = fgTwo_x + fgTwo.get_width()
+		if fgTwo_x <= -1 * fgTwo.get_width():
+			fgTwo_x = fgOne_x + fgOne.get_width()
 
 		ticks_survived += 1
 		current_score = ticks_survived*10 + kill_score
@@ -264,4 +278,5 @@ def main():
 		clock.tick(60)
       
 main()
+pygame.mixer.quit()
 pygame.quit()
