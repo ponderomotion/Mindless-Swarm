@@ -5,6 +5,7 @@ from pygame.locals import *
 from shared import *
 from random import random, randint
 
+# All screens return which state to go to next
 # returns 1 if user decides to quit
 def deathScreen(time=5,highscore=False):
 	dsclock = pygame.time.Clock()
@@ -52,25 +53,41 @@ def deathScreen(time=5,highscore=False):
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				cont = True
-				return(1)
+				return(QUIT_STATE)
 			if event.type == KEYDOWN:
 				if event.key == K_n:
 					cont = True
 				elif event.key == K_q:
 					cont = True
-					return(1)
+					return(QUIT_STATE)
 
 		pygame.display.update()
 		pygame.time.wait(120)
 
-	return(0)
+	return(GAME_SCREEN)
 
 def startScreen():
-	SCREEN.fill(BLACK)
-	
+
+	titleFont = pygame.font.SysFont("andale mono",100)
+	titleText = "LAIKA"
+
+	while(True):
+		SCREEN.fill(BLACK)
+		titleMessage = titleFont.render(titleText,False,(random()*255,random()*255,random()*255))
+		SCREEN.blit(titleMessage, (WINDOW_X/2 - titleMessage.get_width()/2,WINDOW_Y/2 - 140))
+
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				return(QUIT_STATE)
+			if event.type == KEYDOWN:
+				if event.key == K_1:
+					return(GAME_SCREEN)
+				elif event.key == K_2:
+					return(QUIT_STATE)
+		pygame.display.flip()
 
 # returns 1 if user decides to quit
-def pauseScreen(player1): 
+def pauseScreen(): 
  	cont = False
 	bigFont = pygame.font.SysFont("andale mono", 80)
 	contFont = pygame.font.SysFont("consola", 30)
@@ -83,19 +100,17 @@ def pauseScreen(player1):
 
 	pygame.display.update()
 
-	while (cont==False):
+	while(True):
 		#SCREEN.fill((random()*255,random()*255,random()*100))
 		
 		# see if space or q has been pressed
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				cont = True
-				return(1)
+				return(QUIT_STATE)
 			if event.type == KEYDOWN:
 				if event.key == K_SPACE:
-					cont = True
+					break
 				elif event.key == K_q:
-					cont = True
-					return(1)
+					return(QUIT_STATE)
 
-	return(0)
+	return(GAME_SCREEN)

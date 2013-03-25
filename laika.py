@@ -24,10 +24,20 @@ class Laika(object):
 		self.currentScore = 0
 		self.killScore = 0
 		self.ticksSurvived = 0
+		self.newhighscore = False
 
-		# timing
+		# timing and flow
 		self.clock = pygame.time.Clock()
 		self.time = self.clock.tick()/1000.0
+
+		# states:
+		# 0 : Title Screen
+		# 1 : Options Screen
+		# 2 : Main Game Screen
+		# 3 : Pause Screen
+		# 4 : Game Over Screen
+		# 5 : Quit
+		self.state = TITLE_SCREEN
 
 		# fonts
 		self.scoreFont = pygame.font.SysFont("consola", 22)
@@ -45,13 +55,13 @@ class Laika(object):
 	def load_and_init_everything(self):
 		# load any highscores
 		try:
-			hscores = readhighscores()
-			self.topScore = highscores.high_score
+			self.highScores = readhighscores()
+			self.topScore = self.highScores.high_score
 		except:
 			print("No highscores detected, setting to 0")
-			highscores = broids_data()
-			highscores.high_score = 0.0
-			highscores.high_scorer = ""
+			self.highScores = broids_data()
+			self.highScores.high_score = 0.0
+			self.highScores.high_scorer = ""
 
 		# init sound system
 		pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=65536)
@@ -79,27 +89,40 @@ class Laika(object):
 	def mainLoop(self): # main loop
 		while not (self.quit):
 			
-			self.getInput()
-			self.spawnEntities()
-			self.update_and_draw_background()
-			self.update_and_draw_scores_and_status()
-			self.update_and_draw_all_entities()
-			self.collisions()
+			if(self.state == TITLE_SCREEN):
+				self.state = startScreen()
 
-			# did player died?
-			if(self.player1.dead and not self.player1.godMode):
-				del enemyList[:]
-				del enemyBullets[:]
-				del gravList[:]
-				if(current_score >= topScore):
-					self.topScore = self.player1.currentScore
-					highscores.high_score = self.topScore
-					highscores.high_scorer = "1up"
-					writescores(highscores)
-					state = deathScreen(1.5, highscore=True)
-				else:
-					state = deathScreen(1, highscore=False)
-				self.player1.reset()
+			if(self.state == GAME_SCREEN):
+				self.getInput()
+				self.spawnEntities()
+				self.update_and_draw_background()
+				self.update_and_draw_scores_and_status()
+				self.update_and_draw_all_entities()
+				self.collisions()
+
+				# did player died? This code needs moving elsewhere
+				if(self.player1.dead and not self.player1.godMode):
+					del enemyList[:]
+					del enemyBullets[:]
+					del gravList[:]
+					if(self.player1.currentScore >= self.topScore):
+						self.topScore = self.player1.currentScore
+						self.highScores.high_score = self.topScore
+						self.highScores.high_scorer = "1up"
+						writescores(self.highScores)
+						self.newhighscore = True
+					else:
+						self.newhighscore = False
+					self.player1.reset()
+
+			if(self.state==PAUSE_SCREEN):
+				self.state = pauseScreen()
+			
+			if(self.state==GAMEOVER_SCREEN):
+				self.state = deathScreen(1,highscore=newhighscore)
+
+			if(self.state==QUIT_STATE):
+				self.quit = True
 
 	def getInput(self): # handle all input
 		pressed_keys = pygame.key.get_pressed()
@@ -111,7 +134,7 @@ class Laika(object):
 				if event.key == K_d:
 					self.player1.rotation = RIGHT
 				elif event.key == K_ESCAPE:
-					state = pauseScreen(self.player1)
+					self.state = PAUSE_SCREEN
 				elif event.key == K_a:
 					self.player1.rotation = LEFT
 				elif event.key == K_w:
@@ -123,7 +146,7 @@ class Laika(object):
 				elif event.key == K_g:
 					self.player1.godMode = not self.player1.godMode
 				elif event.key == K_p:
-					state = deathScreen(1.5)
+					self.state = GAMEOVER_SCREEN
 				elif event.key == K_b:
 					spawnBlackholes(forceSpawn=True)
 				elif event.key == K_l:

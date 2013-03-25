@@ -21,6 +21,13 @@ RIGHT = 2
 FORWARDS = 1
 BACKWARDS = 2
 
+TITLE_SCREEN = 0
+OPTION_SCREEN = 1
+GAME_SCREEN = 2
+PAUSE_SCREEN = 3
+GAMEOVER_SCREEN = 4
+QUIT_STATE = 5
+
 SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 clock = pygame.time.Clock()
 

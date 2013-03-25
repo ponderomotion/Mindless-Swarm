@@ -7,9 +7,9 @@ from audio import *
 
 #define the players ship etc.
 class Player(object):
-	def __init__(self, name = "p1"):
+	def __init__(self, name = "p1", initpos=Vec2d(WINDOW_X/2,WINDOW_Y/2)):
 		self.name = name
-		self.pos = Vec2d(WINDOW_X/2,WINDOW_Y/2)
+		self.pos = Vec2d(initpos.x,initpos.y)
 		self.vel = Vec2d(0.0,0.0)
 		self.acc = Vec2d(0.0,0.0)
 		self.physacc = Vec2d(0.0,0.0)
