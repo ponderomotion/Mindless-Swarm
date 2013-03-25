@@ -28,6 +28,8 @@ PAUSE_SCREEN = 3
 GAMEOVER_SCREEN = 4
 QUIT_STATE = 5
 
+FULLSCREEN = False
+
 SCREEN = pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 clock = pygame.time.Clock()
 

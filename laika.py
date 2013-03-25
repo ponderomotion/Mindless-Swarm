@@ -43,7 +43,6 @@ class Laika(object):
 		self.scoreFont = pygame.font.SysFont("consola", 22)
 
 		# toggles and modes
-		self.fullScreen = False
 		self.autoSpawn = True
 		self.debug = True
 		self.quit = False
@@ -113,18 +112,20 @@ class Laika(object):
 						self.newhighscore = True
 					else:
 						self.newhighscore = False
+					self.state = GAMEOVER_SCREEN
 					self.player1.reset()
 
 			if(self.state==PAUSE_SCREEN):
 				self.state = pauseScreen()
 			
 			if(self.state==GAMEOVER_SCREEN):
-				self.state = deathScreen(1,highscore=newhighscore)
+				self.state = deathScreen(1,highscore=self.newhighscore)
 
 			if(self.state==QUIT_STATE):
 				self.quit = True
 
 	def getInput(self): # handle all input
+		global FULLSCREEN
 		pressed_keys = pygame.key.get_pressed()
 		self.time += self.clock.tick() / 1000.00
 		for event in pygame.event.get():
@@ -153,8 +154,8 @@ class Laika(object):
 					spawn_entities = not spawn_entities
 				elif event.key == K_f:
 					#toggle fullscreen
-					self.fullScreen = not self.fullScreen
-					if(not self.fullScreen):
+					FULLSCREEN = not FULLSCREEN
+					if(not FULLSCREEN):
 						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 					else:
 						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)

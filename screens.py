@@ -68,13 +68,37 @@ def deathScreen(time=5,highscore=False):
 
 def startScreen():
 
-	titleFont = pygame.font.SysFont("andale mono",100)
+	titleFont = pygame.font.SysFont("andale mono",180)
+	subFont = pygame.font.SysFont("consola", 20)
 	titleText = "LAIKA"
+	subtext = "A Game by Daniel Fletcher"
+	subMessage = subFont.render(subtext,False,WHITE)
+	opFont = pygame.font.SysFont("consola", 50)
+	optext = []
+
+	optext1 = "1: 1 Player Start"
+	optext2 = "2: 2 Player Start"
+	optext3 = "3: View Controls"
+	optext4 = "4: Quit"
+
+	roptext1 = opFont.render(optext1, False, WHITE)
+	roptext2 = opFont.render(optext2, False, WHITE)
+	roptext3 = opFont.render(optext3, False, WHITE)
+	roptext4 = opFont.render(optext4, False, WHITE)
+
+	global FULLSCREEN
 
 	while(True):
 		SCREEN.fill(BLACK)
 		titleMessage = titleFont.render(titleText,False,(random()*255,random()*255,random()*255))
-		SCREEN.blit(titleMessage, (WINDOW_X/2 - titleMessage.get_width()/2,WINDOW_Y/2 - 140))
+		
+		SCREEN.blit(titleMessage, (WINDOW_X/2 - titleMessage.get_width()/2,WINDOW_Y/2 - 310))
+		SCREEN.blit(subMessage, (WINDOW_X/2 - subMessage.get_width()/2 + 120,WINDOW_Y/2 - 130))
+
+		SCREEN.blit(roptext1, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2))
+		SCREEN.blit(roptext2, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 40))
+		SCREEN.blit(roptext3, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 80))
+		SCREEN.blit(roptext4, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 120))
 
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -84,6 +108,15 @@ def startScreen():
 					return(GAME_SCREEN)
 				elif event.key == K_2:
 					return(QUIT_STATE)
+				elif event.key == K_q:
+					return(QUIT_STATE)
+				elif event.key == K_f:
+					#toggle fullscreen
+					FULLSCREEN = not FULLSCREEN
+					if(not FULLSCREEN):
+						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+					else:
+						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 		pygame.display.flip()
 
 # returns 1 if user decides to quit
