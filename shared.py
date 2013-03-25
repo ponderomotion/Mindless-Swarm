@@ -190,5 +190,3 @@ class explosion(object):
 			pygame.draw.polygon(SCREEN, (255,random()*100,random()*100), self.star2verts , 0)
 		if(self.fliptag == 10):
 			self.fliptag = 0
-		
-

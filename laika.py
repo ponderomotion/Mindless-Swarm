@@ -69,16 +69,7 @@ class Laika(object):
 		#bg_music.play()
 		#music_channel.set_volume(0.3)
 		#music_channel.play(bg_music, loops=-1)
-
-		# init graphics
-		self.bgOne = load_image('spacebg.png')
-		self.bgTwo = load_image('spacebg.png')
-		self.fgOne = load_image('fgbg.png', alpha = True)
-		self.fgTwo = load_image('fgbg.png', alpha = True)
-		self.bgOne_x = 0
-		self.bgTwo_x = self.bgOne.get_width()
-		self.fgOne_x = 0
-		self.fgTwo_x = self.fgOne.get_width()
+		self.bg = Background()
 
 	def initPlayers(self):
 		# different depending on 1p or 2p game
@@ -89,7 +80,7 @@ class Laika(object):
 		while not (self.quit):
 			
 			if(self.state == TITLE_SCREEN):
-				self.state = startScreen()
+				self.state = startScreen(self.bg)
 
 			if(self.state == GAME_SCREEN):
 				self.getInput()
@@ -166,34 +157,7 @@ class Laika(object):
 					self.player1.movement = NONE
 
 	def update_and_draw_background(self):
-
-		# increase background scroll speed as score increases
-		bgspeed = 1 + (self.currentScore / 100000.0)
-		fgspeed = 2.5 * bgspeed
-
-		# draw the background
-		SCREEN.blit(self.bgOne,(self.bgOne_x,0))
-		SCREEN.blit(self.bgTwo,(self.bgTwo_x,0))
-
-		# draw the forground
-		SCREEN.blit(self.fgOne,(self.fgOne_x,0))
-		SCREEN.blit(self.fgTwo,(self.fgTwo_x,0))
-
-		# move along
-		self.bgOne_x -= bgspeed
-		self.bgTwo_x -= bgspeed
-		self.fgOne_x -= fgspeed
-		self.fgTwo_x -= fgspeed
-
-		# periodicity
-		if self.bgOne_x <= -1 * self.bgOne.get_width():
-			self.bgOne_x = self.bgTwo_x + self.bgTwo.get_width()
-		if self.bgTwo_x <= -1 * self.bgTwo.get_width():
-			self.bgTwo_x = self.bgOne_x + self.bgOne.get_width()
-		if self.fgOne_x <= -1 * self.fgOne.get_width():
-			self.fgOne_x = self.fgTwo_x + self.fgTwo.get_width()
-		if self.fgTwo_x <= -1 * self.fgTwo.get_width():
-			self.fgTwo_x = self.fgOne_x + self.fgOne.get_width()
+		self.bg.update_and_draw()
 
 	def update_and_draw_scores_and_status(self):
 		current_score_text = self.scoreFont.render("SCORE: " + str(self.player1.currentScore), True, (255,200,255))

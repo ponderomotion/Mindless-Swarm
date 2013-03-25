@@ -1,8 +1,8 @@
 # this file holds functions for different screens, e.g. death screen, high score entry etc..
-from audio import *
 import pygame
 from pygame.locals import *
 from shared import *
+from audio import *
 from random import random, randint
 
 # All screens return which state to go to next
@@ -66,7 +66,7 @@ def deathScreen(time=5,highscore=False):
 
 	return(GAME_SCREEN)
 
-def startScreen():
+def startScreen(bg):
 
 	titleFont = pygame.font.SysFont("andale mono",180)
 	subFont = pygame.font.SysFont("consola", 20)
@@ -81,24 +81,25 @@ def startScreen():
 	optext3 = "3: View Controls"
 	optext4 = "4: Quit"
 
-	roptext1 = opFont.render(optext1, False, WHITE)
-	roptext2 = opFont.render(optext2, False, WHITE)
-	roptext3 = opFont.render(optext3, False, WHITE)
-	roptext4 = opFont.render(optext4, False, WHITE)
+	roptext1 = opFont.render(optext1, False, (200,255,255))
+	roptext2 = opFont.render(optext2, False, (200,255,255))
+	roptext3 = opFont.render(optext3, False, (200,255,255))
+	roptext4 = opFont.render(optext4, False, (200,255,255))
 
 	global FULLSCREEN
 
 	while(True):
-		SCREEN.fill(BLACK)
+		bg.update_and_draw()
+
 		titleMessage = titleFont.render(titleText,False,(random()*255,random()*255,random()*255))
 		
-		SCREEN.blit(titleMessage, (WINDOW_X/2 - titleMessage.get_width()/2,WINDOW_Y/2 - 310))
+		SCREEN.blit(titleMessage, (WINDOW_X/2 - titleMessage.get_width()/2,WINDOW_Y/2 - 300))
 		SCREEN.blit(subMessage, (WINDOW_X/2 - subMessage.get_width()/2 + 120,WINDOW_Y/2 - 130))
 
 		SCREEN.blit(roptext1, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2))
-		SCREEN.blit(roptext2, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 40))
-		SCREEN.blit(roptext3, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 80))
-		SCREEN.blit(roptext4, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 120))
+		SCREEN.blit(roptext2, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 50))
+		SCREEN.blit(roptext3, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 100))
+		SCREEN.blit(roptext4, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 150))
 
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -107,6 +108,10 @@ def startScreen():
 				if event.key == K_1:
 					return(GAME_SCREEN)
 				elif event.key == K_2:
+					return(GAME_SCREEN)
+				elif event.key == K_3:
+					None
+				elif event.key == K_4:
 					return(QUIT_STATE)
 				elif event.key == K_q:
 					return(QUIT_STATE)
@@ -144,6 +149,49 @@ def pauseScreen():
 				if event.key == K_SPACE:
 					break
 				elif event.key == K_q:
-					return(QUIT_STATE)
+					return(TITLE_SCREEN)
 
 	return(GAME_SCREEN)
+
+# hold and advance backdrop
+class Background(object):
+    def __init__(self):
+        # init graphics
+        self.bgOne = load_image('spacebg.png')
+        self.bgTwo = load_image('spacebg.png')
+        self.fgOne = load_image('fgbg.png', alpha = True)
+        self.fgTwo = load_image('fgbg.png', alpha = True)
+        self.bgOne_x = 0
+        self.bgTwo_x = self.bgOne.get_width()
+        self.fgOne_x = 0
+        self.fgTwo_x = self.fgOne.get_width()
+        
+    def update_and_draw(self):
+        # increase background scroll speed as score increases
+        #bgspeed = 1 + (self.currentScore / 100000.0)
+        bgspeed = 1
+        fgspeed = 2.5 * bgspeed
+
+        # draw the background
+        SCREEN.blit(self.bgOne,(self.bgOne_x,0))
+        SCREEN.blit(self.bgTwo,(self.bgTwo_x,0))
+
+        # draw the forground
+        SCREEN.blit(self.fgOne,(self.fgOne_x,0))
+        SCREEN.blit(self.fgTwo,(self.fgTwo_x,0))
+
+        # move along
+        self.bgOne_x -= bgspeed
+        self.bgTwo_x -= bgspeed
+        self.fgOne_x -= fgspeed
+        self.fgTwo_x -= fgspeed
+
+        # periodicity
+        if self.bgOne_x <= -1 * self.bgOne.get_width():
+            self.bgOne_x = self.bgTwo_x + self.bgTwo.get_width()
+        if self.bgTwo_x <= -1 * self.bgTwo.get_width():
+            self.bgTwo_x = self.bgOne_x + self.bgOne.get_width()
+        if self.fgOne_x <= -1 * self.fgOne.get_width():
+            self.fgOne_x = self.fgTwo_x + self.fgTwo.get_width()
+        if self.fgTwo_x <= -1 * self.fgTwo.get_width():
+            self.fgTwo_x = self.fgOne_x + self.fgOne.get_width()
