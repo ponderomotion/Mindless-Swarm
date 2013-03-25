@@ -65,6 +65,9 @@ def deathScreen(time=5,highscore=False):
 
 	return(0)
 
+def startScreen():
+	SCREEN.fill(BLACK)
+	
 
 # returns 1 if user decides to quit
 def pauseScreen(player1): 

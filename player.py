@@ -21,8 +21,16 @@ class Player(object):
 		self.bulletSpeed = 300
 		self.stunned = False
 		self.dead = False
+		self.godMode = False
 
 		self.shieldstrength = 2
+		self.currentScore = 0
+		self.killScore = 0
+		self.ticksSurvived = 0
+		self.dead = False
+
+		self.rotation = NONE
+		self.movement = NONE
 
 		# media
 		self.fire_sound = load_sound('pew.wav')
@@ -61,6 +69,31 @@ class Player(object):
 		self.exhaustVertices1.append(Vec2d(self.pos.x-(1.5*self.scale), self.pos.y+(3.5*self.scale)))
 
 	def update(self,dt):
+
+		# player controls, check if player is stunned or under any other effects
+		if self.stunned:
+			self.angle = self.angle + 10
+			self.acc.x = 0.0
+			self.acc.y = 0.0
+		else:
+			if self.rotation == RIGHT:
+				self.angle = self.angle + 10
+			elif self.rotation == LEFT:
+				self.angle = self.angle - 10
+			if self.movement == FORWARDS:
+				self.acc.x = 300 * sin(radians(self.angle))
+				self.acc.y = -300 * cos(radians(self.angle))
+				self.forwardEngine_activate()
+			if self.movement == BACKWARDS:
+				self.acc.x = -300 * sin(radians(self.angle))
+				self.acc.y = 300 * cos(radians(self.angle))
+				self.reverseEngine_activate()
+			if self.movement == NONE:
+				self.acc.x = 0.0
+				self.acc.y = 0.0
+				self.forwardEngine_deactivate()
+				self.reverseEngine_deactivate()
+
 		# semi-implicit Euler integration
 		# friction coefficient 0.99
 		self.vel.x = (0.99 * self.vel.x) + (self.acc.x+self.physacc.x) * dt
@@ -131,6 +164,9 @@ class Player(object):
 		# status updates
 		self.status_update()
 
+		self.ticksSurvived += 1
+		self.currentScore = self.ticksSurvived * 10 + self.killScore
+
 	def display(self):
 		point_1 = self.shipVertices[0].rotate(self.angle, self.pos)
 		point_2 = self.shipVertices[1].rotate(self.angle, self.pos)
@@ -194,6 +230,10 @@ class Player(object):
 		self.stuntime = 0.0
 	def reset(self):
 		self.shieldstrength = 2
+		self.currentScore = 0
+		self.killScore = 0
+		self.ticksSurvived = 0
+		self.dead = False
 
 	def status_update(self):
 		# check any player statuses and clear them if enough time has elapsed

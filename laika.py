@@ -11,73 +11,117 @@ from screens import *
 from player import *
 from gravity_object import *
 
-def main():
-	pygame.init()
-	topScore = 0
-	fullScreen = True
-	current_score = 0
-	kill_score = 0
-	displayFont = pygame.font.SysFont("consola", 22)
-	pygame.display.set_caption("Laika")
-	state = 0
-	clock = pygame.time.Clock()
-	time_passed = clock.tick() / 1000.00
-	wave = 0
-	rotation = NONE
-	movement = NONE
-	player1 = Player()
-	god_mode = False
-	spawn_entities = True
-	ticks_survived = 0
 
-	try:
-		highscores = readhighscores()
-		topScore = highscores.high_score
-	except:
-		print("No highscores detected, setting to 0")
-		highscores = broids_data()
-		highscores.high_score = 0.0
-		highscores.high_scorer = ""
+# main game class
+class Laika(object):
+	def __init__(self):
+		# pygame window initialisation
+		pygame.init()
+		pygame.display.set_caption("Laika")
 
-	pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=65536)
-	music_channel = pygame.mixer.Channel(0)
-	bg_music = load_sound('XXXXX.wav')
-	bg_music.play()
-	music_channel.set_volume(0.3)
-	music_channel.play(bg_music, loops=-1)
+		# Score Keeping vars
+		self.topScore = 0
+		self.currentScore = 0
+		self.killScore = 0
+		self.ticksSurvived = 0
 
-	draw_collision_boxes=False
+		# timing
+		self.clock = pygame.time.Clock()
+		self.time = self.clock.tick()/1000.0
 
-	bgOne = load_image('spacebg.png')
-	bgTwo = load_image('spacebg.png')
-	fgOne = load_image('fgbg.png', alpha = True)
-	fgTwo = load_image('fgbg.png', alpha = True)
-	bgOne_x = 0
-	bgTwo_x = bgOne.get_width()
-	fgOne_x = 0
-	fgTwo_x = fgOne.get_width()
+		# fonts
+		self.scoreFont = pygame.font.SysFont("consola", 22)
 
-	while (state==0):
+		# toggles and modes
+		self.fullScreen = False
+		self.autoSpawn = True
+		self.debug = True
+		self.quit = False
+
+		self.load_and_init_everything()
+		self.initPlayers()
+
+
+	def load_and_init_everything(self):
+		# load any highscores
+		try:
+			hscores = readhighscores()
+			self.topScore = highscores.high_score
+		except:
+			print("No highscores detected, setting to 0")
+			highscores = broids_data()
+			highscores.high_score = 0.0
+			highscores.high_scorer = ""
+
+		# init sound system
+		pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=65536)
+		self.music_channel = pygame.mixer.Channel(0)
+		self.bg_music = load_sound('XXXXX.wav')
+		#bg_music.play()
+		#music_channel.set_volume(0.3)
+		#music_channel.play(bg_music, loops=-1)
+
+		# init graphics
+		self.bgOne = load_image('spacebg.png')
+		self.bgTwo = load_image('spacebg.png')
+		self.fgOne = load_image('fgbg.png', alpha = True)
+		self.fgTwo = load_image('fgbg.png', alpha = True)
+		self.bgOne_x = 0
+		self.bgTwo_x = self.bgOne.get_width()
+		self.fgOne_x = 0
+		self.fgTwo_x = self.fgOne.get_width()
+
+	def initPlayers(self):
+		# different depending on 1p or 2p game
+		# just assume 1p for now
+		self.player1 = Player()
+
+	def mainLoop(self): # main loop
+		while not (self.quit):
+			
+			self.getInput()
+			self.spawnEntities()
+			self.update_and_draw_background()
+			self.update_and_draw_scores_and_status()
+			self.update_and_draw_all_entities()
+			self.collisions()
+
+			# did player died?
+			if(self.player1.dead and not self.player1.godMode):
+				del enemyList[:]
+				del enemyBullets[:]
+				del gravList[:]
+				if(current_score >= topScore):
+					self.topScore = self.player1.currentScore
+					highscores.high_score = self.topScore
+					highscores.high_scorer = "1up"
+					writescores(highscores)
+					state = deathScreen(1.5, highscore=True)
+				else:
+					state = deathScreen(1, highscore=False)
+				self.player1.reset()
+
+	def getInput(self): # handle all input
 		pressed_keys = pygame.key.get_pressed()
-		time_passed += clock.tick() / 1000.00
+		self.time += self.clock.tick() / 1000.00
 		for event in pygame.event.get():
 			if event.type == QUIT:
-				state = 1
+				state = self.quit = True
 			if event.type == KEYDOWN:
 				if event.key == K_d:
-					rotation = RIGHT
+					self.player1.rotation = RIGHT
 				elif event.key == K_ESCAPE:
-					state = pauseScreen(player1)
+					state = pauseScreen(self.player1)
 				elif event.key == K_a:
-					rotation = LEFT
+					self.player1.rotation = LEFT
 				elif event.key == K_w:
-					movement = FORWARDS
+					self.player1.movement = FORWARDS
 				elif event.key == K_s:
-					movement = BACKWARDS
+					self.player1.movement = BACKWARDS
 				elif event.key == K_SPACE:
-					player1.shoot()
+					self.player1.shoot()
 				elif event.key == K_g:
-					god_mode = not god_mode # toggle
+					self.player1.godMode = not self.player1.godMode
 				elif event.key == K_p:
 					state = deathScreen(1.5)
 				elif event.key == K_b:
@@ -86,92 +130,100 @@ def main():
 					spawn_entities = not spawn_entities
 				elif event.key == K_f:
 					#toggle fullscreen
-					fullScreen = not fullScreen
-					if(not fullScreen):
+					self.fullScreen = not self.fullScreen
+					if(not self.fullScreen):
 						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 					else:
 						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
 			if event.type == KEYUP:
 				if (event.key == K_d or event.key == K_a):
-					rotation = NONE
+					self.player1.rotation = NONE
 				if (event.key == K_w or event.key == K_s):
-					movement = NONE
+					self.player1.movement = NONE
 
-		# player controls, check if player is stunned or under any other effects
-		if player1.stunned:
-			player1.angle = player1.angle + 10
-			player1.acc.x = 0.0
-			player1.acc.y = 0.0
-		else:
-			if rotation == RIGHT:
-				player1.angle = player1.angle + 10
-			elif rotation == LEFT:
-				player1.angle = player1.angle - 10
-			if movement == FORWARDS:
-				player1.acc.x = 300 * sin(radians(player1.angle))
-				player1.acc.y = -300 * cos(radians(player1.angle))
-				player1.forwardEngine_activate()
-			if movement == BACKWARDS:
-				player1.acc.x = -300 * sin(radians(player1.angle))
-				player1.acc.y = 300 * cos(radians(player1.angle))
-				player1.reverseEngine_activate()
-			if movement == NONE:
-				player1.acc.x = 0.0
-				player1.acc.y = 0.0
-				player1.forwardEngine_deactivate()
-				player1.reverseEngine_deactivate()
+	def update_and_draw_background(self):
 
 		# increase background scroll speed as score increases
-		bgspeed = 1 + (current_score / 100000.0)
+		bgspeed = 1 + (self.currentScore / 100000.0)
 		fgspeed = 2.5 * bgspeed
 
 		# draw the background
-		SCREEN.blit(bgOne,(bgOne_x,0))
-		SCREEN.blit(bgTwo,(bgTwo_x,0))
+		SCREEN.blit(self.bgOne,(self.bgOne_x,0))
+		SCREEN.blit(self.bgTwo,(self.bgTwo_x,0))
 
 		# draw the forground
-		SCREEN.blit(fgOne,(fgOne_x,0))
-		SCREEN.blit(fgTwo,(fgTwo_x,0))
+		SCREEN.blit(self.fgOne,(self.fgOne_x,0))
+		SCREEN.blit(self.fgTwo,(self.fgTwo_x,0))
 
-		bgOne_x -= bgspeed
-		bgTwo_x -= bgspeed
-		fgOne_x -= fgspeed
-		fgTwo_x -= fgspeed
+		# move along
+		self.bgOne_x -= bgspeed
+		self.bgTwo_x -= bgspeed
+		self.fgOne_x -= fgspeed
+		self.fgTwo_x -= fgspeed
 
 		# periodicity
-		if bgOne_x <= -1 * bgOne.get_width():
-			bgOne_x = bgTwo_x + bgTwo.get_width()
-		if bgTwo_x <= -1 * bgTwo.get_width():
-			bgTwo_x = bgOne_x + bgOne.get_width()
-		if fgOne_x <= -1 * fgOne.get_width():
-			fgOne_x = fgTwo_x + fgTwo.get_width()
-		if fgTwo_x <= -1 * fgTwo.get_width():
-			fgTwo_x = fgOne_x + fgOne.get_width()
+		if self.bgOne_x <= -1 * self.bgOne.get_width():
+			self.bgOne_x = self.bgTwo_x + self.bgTwo.get_width()
+		if self.bgTwo_x <= -1 * self.bgTwo.get_width():
+			self.bgTwo_x = self.bgOne_x + self.bgOne.get_width()
+		if self.fgOne_x <= -1 * self.fgOne.get_width():
+			self.fgOne_x = self.fgTwo_x + self.fgTwo.get_width()
+		if self.fgTwo_x <= -1 * self.fgTwo.get_width():
+			self.fgTwo_x = self.fgOne_x + self.fgOne.get_width()
 
-		ticks_survived += 1
-		current_score = ticks_survived*10 + kill_score
-		current_score_text = displayFont.render("SCORE: " + str(current_score), True, (255,200,255))
-		if(current_score > topScore):
+	def update_and_draw_scores_and_status(self):
+		current_score_text = self.scoreFont.render("SCORE: " + str(self.player1.currentScore), True, (255,200,255))
+		if(self.currentScore > self.topScore):
 			if not god_mode: 
-				topScore = current_score 
-		top_score_text = displayFont.render("TOP SCORE: " + str(topScore), True, (255,255,200))
-		if god_mode:
-			god_mode_text = displayFont.render("GOD MODE ENABLED", True, (100,255,100))
+				self.topScore = self.player1.currentScore 
+		top_score_text = self.scoreFont.render("TOP SCORE: " + str(self.topScore), True, (255,255,200))
+		
+		# status text
+		if self.player1.godMode:
+			god_mode_text = self.scoreFont.render("GOD MODE ENABLED", True, (100,255,100))
 			SCREEN.blit(god_mode_text, (10, 550))
 		SCREEN.blit(current_score_text, (10, 30))
 		SCREEN.blit(top_score_text, (10, 10))
 
-		# update positions and maybe spawn enemies
-		#dt = clock.tick() / 1000.00
-		dt = 0.02
+	def update_and_draw_all_entities(self):
+		dt = clock.tick() / 800.00
+		#dt = 0.02	
+		# update all positions and draw
+		for bullet in enemyBullets:
+			bullet.update(dt)
+			bullet.draw()
+		for bullet in playerBullets:
+			bullet.update(dt)
+			bullet.draw()
+		for enemy in enemyList:
+			enemy.update(dt,self.player1)
+			enemy.display()
+		for expl in explosionList:
+			expl.update_and_draw()
+		for obj in gravList:
+			obj.update(dt)
+			obj.attract(self.player1)
+			obj.draw()
 
-		if spawn_entities:
-			spawnEnemies()
-			spawnBlackholes()
-		
-		# check enemy bullet collisions with player here
-		if not god_mode:
-			playerorigin = player1.shipVertices[0].rotate(player1.angle, player1.pos)
+		self.player1.update(dt)
+		self.player1.display()
+
+		# remove things that are no longer in the game
+		pruneBullets(enemyBullets)
+		pruneBullets(playerBullets)
+		pruneExplosions(explosionList)
+		pruneGravs(gravList)
+
+		pygame.display.flip()
+
+	def spawnEntities(self):
+		spawnEnemies()
+		spawnBlackholes()
+
+	def collisions(self):
+		# check enemy bullet collisions with player 1 here
+		playerorigin = self.player1.shipVertices[0].rotate(self.player1.angle, self.player1.pos)
+		if not self.player1.godMode:
 			for bullet in enemyBullets:
 				if (bullet.pos.x < playerorigin[0] + 6):
 					if (bullet.pos.x > playerorigin[0] - 6):
@@ -180,15 +232,12 @@ def main():
 								# player has been hit, decide what to do to them depending
 								# on bullet type
 								if(bullet.type == 3):
-									player1.stun()
+									self.player1.stun()
 									enemyBullets.remove(bullet)
 								else: # player takes a hit and maybe dies
 									enemyBullets.remove(bullet)
-									if (player1.take_hit()): #take_hit returns true if dead
-										player1.dead = True
-										
-										
-
+									if (self.player1.take_hit()): #take_hit returns true if dead
+										self.player1.dead = True
 
 		# check player bullet collisions with enemies here
 		for bullet in playerBullets:
@@ -208,10 +257,10 @@ def main():
 									playerBullets.remove(bullet)
 								except:
 									None
-								kill_score += 5000
+								self.player1.killScore += 5000
 		
-
-		if(draw_collision_boxes):
+		# draw the collision boxes in debug mode
+		if(self.debug):
 			# draw the crap player collision box
 			point_1 = (playerorigin[0]-7,playerorigin[1]-7)
 			point_2 = (playerorigin[0]+7,playerorigin[1]-7)
@@ -229,53 +278,11 @@ def main():
 				point_4 = (enemyorigin[0] - 7, enemyorigin[1] + 7)
 				pygame.draw.polygon(SCREEN, BLUE, (point_1, point_2, point_3, point_4) ,1)
 
-		# update all positions and draw
-		for bullet in enemyBullets:
-			bullet.update(dt)
-			bullet.draw()
-		for bullet in playerBullets:
-			bullet.update(dt)
-			bullet.draw()
-		for enemy in enemyList:
-			enemy.update(dt,player1)
-			enemy.display()
-		for expl in explosionList:
-			expl.update_and_draw()
-		for obj in gravList:
-			obj.update(dt)
-			obj.attract(player1)
-			obj.draw()
 
-		player1.update(dt)
-		player1.display()
+def main():
+	game = Laika()
+	game.mainLoop()
 
-		# remove things that are no longer in the game
-		pruneBullets(enemyBullets)
-		pruneBullets(playerBullets)
-		pruneExplosions(explosionList)
-		pruneGravs(gravList)
-
-		# did player died?
-		if(player1.dead and not god_mode):
-			time_passed = 0
-			kill_score = 0
-			ticks_survived = 0
-			bgspeed = 1
-			del enemyList[:]
-			del enemyBullets[:]
-			del gravList[:]
-			if(current_score >= topScore):
-				topScore = current_score
-				highscores.high_score = topScore
-				writescores(highscores)
-				state = deathScreen(1.5, highscore=True)
-			else:
-				state = deathScreen(1, highscore=False)
-			player1.reset()
-			player1.dead = False
-
-		pygame.display.flip()
-		clock.tick(60)
       
 main()
 pygame.mixer.quit()
