@@ -69,7 +69,8 @@ def deathScreen(time=5,highscore=False):
 def startScreen(bg):
 
 	titleFont = pygame.font.SysFont("andale mono",180)
-	subFont = pygame.font.SysFont("consola", 20)
+	titleFont.set_underline(True)
+	subFont = pygame.font.SysFont("consola", 22)
 	titleText = "LAIKA"
 	subtext = "A Game by Daniel Fletcher"
 	subMessage = subFont.render(subtext,False,WHITE)
@@ -79,12 +80,14 @@ def startScreen(bg):
 	optext1 = "1: 1 Player Start"
 	optext2 = "2: 2 Player Start"
 	optext3 = "3: View Controls"
-	optext4 = "4: Quit"
+	optext4 = "4: Credits"
+	optext5 = "5: Quit"
 
 	roptext1 = opFont.render(optext1, False, (200,255,255))
 	roptext2 = opFont.render(optext2, False, (200,255,255))
 	roptext3 = opFont.render(optext3, False, (200,255,255))
 	roptext4 = opFont.render(optext4, False, (200,255,255))
+	roptext5 = opFont.render(optext5, False, (200,255,255))
 
 	global FULLSCREEN
 
@@ -94,12 +97,13 @@ def startScreen(bg):
 		titleMessage = titleFont.render(titleText,False,(random()*255,random()*255,random()*255))
 		
 		SCREEN.blit(titleMessage, (WINDOW_X/2 - titleMessage.get_width()/2,WINDOW_Y/2 - 300))
-		SCREEN.blit(subMessage, (WINDOW_X/2 - subMessage.get_width()/2 + 120,WINDOW_Y/2 - 130))
+		SCREEN.blit(subMessage, (WINDOW_X/2 - subMessage.get_width()/2 + 150,WINDOW_Y/2 - 100))
 
 		SCREEN.blit(roptext1, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2))
 		SCREEN.blit(roptext2, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 50))
 		SCREEN.blit(roptext3, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 100))
 		SCREEN.blit(roptext4, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 150))
+		SCREEN.blit(roptext5, (WINDOW_X/2 - roptext1.get_width()/2,WINDOW_Y/2 + 200))
 
 		for event in pygame.event.get():
 			if event.type == QUIT:
@@ -112,7 +116,65 @@ def startScreen(bg):
 				elif event.key == K_3:
 					None
 				elif event.key == K_4:
+					return(CREDITS_SCREEN)
+				elif event.key == K_5:
 					return(QUIT_STATE)
+				elif event.key == K_q:
+					return(QUIT_STATE)
+				elif event.key == K_f:
+					#toggle fullscreen
+					FULLSCREEN = not FULLSCREEN
+					if(not FULLSCREEN):
+						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+					else:
+						pygame.display.set_mode((WINDOW_X,WINDOW_Y),pygame.FULLSCREEN|pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+		pygame.display.flip()
+
+def creditsScreen(bg):
+
+	nFont = pygame.font.SysFont("consola", 35)
+	uFont = pygame.font.SysFont("consola", 25)
+
+	ntext1 = "Programming and Design"
+	ntext2 = "Music"
+	ntext3 = "Sound Effects"
+	dantext = "Daniel Fletcher"
+	ashtext = "Ashley Wilkinson"
+	soptext = "Sophie Rees"
+
+	ntext1 = nFont.render(ntext1, False, (200,255,255))
+	ntext2 = nFont.render(ntext2, False, (200,255,255))
+	ntext3 = nFont.render(ntext3, False, (200,255,255))
+
+	utext1 = uFont.render(dantext, False, (255,255,200))
+	utext2 = uFont.render(ashtext, False, (255,255,200))
+	utext3 = uFont.render(soptext, False, (255,255,200))
+
+	global FULLSCREEN
+
+	while(True):
+		bg.update_and_draw()
+		
+		# Programming and Design
+		SCREEN.blit(ntext1, (WINDOW_X/2 - ntext1.get_width()/2,WINDOW_Y/2 - 150))
+		# Daniel Fletcher
+		SCREEN.blit(utext1, (WINDOW_X/2 - utext1.get_width()/2,WINDOW_Y/2 - 100))
+		# Music
+		SCREEN.blit(ntext2, (WINDOW_X/2 - ntext2.get_width()/2,WINDOW_Y/2 - 50))
+		# Ashley Wilkinson
+		SCREEN.blit(utext2, (WINDOW_X/2 - utext2.get_width()/2,WINDOW_Y/2))
+		# Sound Effects
+		SCREEN.blit(ntext3, (WINDOW_X/2 - ntext3.get_width()/2,WINDOW_Y/2 + 50))
+		# Sophie Rees
+		SCREEN.blit(utext1, (WINDOW_X/2 - utext1.get_width()/2,WINDOW_Y/2 + 100))
+		SCREEN.blit(utext3, (WINDOW_X/2 - utext3.get_width()/2,WINDOW_Y/2 + 120))
+
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				return(QUIT_STATE)
+			if event.type == KEYDOWN:
+				if event.key == K_ESCAPE:
+					return(TITLE_SCREEN)
 				elif event.key == K_q:
 					return(QUIT_STATE)
 				elif event.key == K_f:
@@ -139,7 +201,6 @@ def pauseScreen():
 	pygame.display.update()
 
 	while(True):
-		#SCREEN.fill((random()*255,random()*255,random()*100))
 		
 		# see if space or q has been pressed
 		for event in pygame.event.get():
@@ -147,11 +208,10 @@ def pauseScreen():
 				return(QUIT_STATE)
 			if event.type == KEYDOWN:
 				if event.key == K_SPACE:
-					break
+					return(GAME_SCREEN)
 				elif event.key == K_q:
 					return(TITLE_SCREEN)
 
-	return(GAME_SCREEN)
 
 # hold and advance backdrop
 class Background(object):

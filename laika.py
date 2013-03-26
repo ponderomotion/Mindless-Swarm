@@ -65,10 +65,10 @@ class Laika(object):
 		# init sound system
 		pygame.mixer.init(frequency=44100, size=-16, channels=2, buffer=65536)
 		self.music_channel = pygame.mixer.Channel(0)
-		self.bg_music = load_sound('XXXXX.wav')
+		self.bg_music = load_sound('squid.wav')
 		#bg_music.play()
-		#music_channel.set_volume(0.3)
-		#music_channel.play(bg_music, loops=-1)
+		self.music_channel.set_volume(0.5)
+		
 		self.bg = Background()
 
 	def initPlayers(self):
@@ -77,6 +77,7 @@ class Laika(object):
 		self.player1 = Player()
 
 	def mainLoop(self): # main loop
+		self.music_channel.play(self.bg_music, loops=-1)
 		while not (self.quit):
 			
 			if(self.state == TITLE_SCREEN):
@@ -106,8 +107,12 @@ class Laika(object):
 					self.state = GAMEOVER_SCREEN
 					self.player1.reset()
 
+			if(self.state==CREDITS_SCREEN):
+				self.state = creditsScreen(self.bg)
+
 			if(self.state==PAUSE_SCREEN):
 				self.state = pauseScreen()
+				clock.tick()
 			
 			if(self.state==GAMEOVER_SCREEN):
 				self.state = deathScreen(1,highscore=self.newhighscore)
