@@ -220,62 +220,90 @@ def pauseScreen():
 
 # hold and advance backdrop
 class Background(object):
-    def __init__(self):
+    def __init__(self, quality = MEDIUM_QUALITY):
         # init graphics
+
+        self.quality = quality
         self.layer1a = load_image('bglayer1.png')
         self.layer1b = load_image('bglayer1.png')
-        self.layer2a = load_image('bglayer2.png', alpha = True)
-        self.layer2b = load_image('bglayer2.png', alpha = True)
-        self.layer3a = load_image('bglayer3.png', alpha = True)
-        self.layer3b = load_image('bglayer3.png', alpha = True)
-        
         self.layer1a_x = 0
         self.layer1b_x = self.layer1a.get_width()
-        self.layer2a_x = 0
-        self.layer2b_x = self.layer2a.get_width()
-        self.layer3a_x = 0
-        self.layer3b_x = self.layer3a.get_width()
 
+        if quality == HIGH_QUALITY:
+        	self.layer2a = load_image('bglayer2.png', alpha = True)
+        	self.layer2b = load_image('bglayer2.png', alpha = True)
+        	self.layer2a_x = 0
+        	self.layer2b_x = self.layer2a.get_width()
+        if quality == HIGH_QUALITY or quality == MEDIUM_QUALITY:
+        	self.layer3a = load_image('bglayer3.png', alpha = True)
+        	self.layer3b = load_image('bglayer3.png', alpha = True)
+        	self.layer3a_x = 0
+        	self.layer3b_x = self.layer3a.get_width()
+
+    def set_quality(quality):
+    	self.quality = quality
+        self.layer1a = load_image('bglayer1.png')
+        self.layer1b = load_image('bglayer1.png')
+        self.layer1a_x = 0
+        self.layer1b_x = self.layer1a.get_width()
+        self.layer2a = None
+        self.layer2b = None
+        self.layer3a = None
+        self.layer3b = None
+
+        if quality == HIGH_QUALITY:
+        	self.layer2a = load_image('bglayer2.png', alpha = True)
+        	self.layer2b = load_image('bglayer2.png', alpha = True)
+        	self.layer2a_x = 0
+        	self.layer2b_x = self.layer2a.get_width()
+        if quality == HIGH_QUALITY or quality == MEDIUM_QUALITY:
+        	self.layer3a = load_image('bglayer3.png', alpha = True)
+        	self.layer3b = load_image('bglayer3.png', alpha = True)
+        	self.layer3a_x = 0
+        	self.layer3b_x = self.layer3a.get_width()
+
+        
     def update_and_draw(self):
         # increase background scroll speed as score increases
         #bgspeed = 1 + (self.currentScore / 100000.0)
-        l1speed = 0.1
-        l2speed = 1.0
-        l3speed = 2.5
-
+        
+        # background layer 1 drawn for all quality levels
+        l1speed = 0.3
         # draw the bottom layer
         SCREEN.blit(self.layer1a,(self.layer1a_x,0))
         SCREEN.blit(self.layer1b,(self.layer1b_x,0))
-
-        # middle layer
-        SCREEN.blit(self.layer2a,(self.layer2a_x,0))
-        SCREEN.blit(self.layer2b,(self.layer2b_x,0))
-
-        # top layer
-        SCREEN.blit(self.layer3a,(self.layer3a_x,0))
-        SCREEN.blit(self.layer3b,(self.layer3b_x,0))
-
         # move along
         self.layer1a_x -= l1speed
         self.layer1b_x -= l1speed
-        self.layer2a_x -= l2speed
-        self.layer2b_x -= l2speed
-        self.layer3a_x -= l3speed
-        self.layer3b_x -= l3speed
-
         # periodicity
         if self.layer1a_x <= -1 * self.layer1a.get_width():
             self.layer1a_x = self.layer1a_x + self.layer1a.get_width()
         if self.layer1b_x <= -1 * self.layer1b.get_width():
             self.layer1b_x = self.layer1b_x + self.layer1b.get_width()
 
-        if self.layer2a_x <= -1 * self.layer2a.get_width():
-            self.layer2a_x = self.layer2a_x + self.layer2a.get_width()
-        if self.layer2b_x <= -1 * self.layer2b.get_width():
-            self.layer2b_x = self.layer2b_x + self.layer2b.get_width()
+        if self.quality == HIGH_QUALITY:
+        	l2speed = 1.0
+        	# middle layer
+        	SCREEN.blit(self.layer2a,(self.layer2a_x,0))
+        	SCREEN.blit(self.layer2b,(self.layer2b_x,0))
+        	self.layer2a_x -= l2speed
+        	self.layer2b_x -= l2speed
+        	if self.layer2a_x <= -1 * self.layer2a.get_width():
+        		self.layer2a_x = self.layer2a_x + self.layer2a.get_width()
+        	if self.layer2b_x <= -1 * self.layer2b.get_width():
+        		self.layer2b_x = self.layer2b_x + self.layer2b.get_width()
+        
+        if self.quality == HIGH_QUALITY or self.quality == MEDIUM_QUALITY:
+        	l3speed = 2.5
+        	# top layer
+        	SCREEN.blit(self.layer3a,(self.layer3a_x,0))
+        	SCREEN.blit(self.layer3b,(self.layer3b_x,0))        
+        	self.layer3a_x -= l3speed
+        	self.layer3b_x -= l3speed
 
-        if self.layer3a_x <= -1 * self.layer3a.get_width():
-            self.layer3a_x = self.layer3a_x + self.layer3a.get_width()
-        if self.layer3b_x <= -1 * self.layer3b.get_width():
-            self.layer3b_x = self.layer3b_x + self.layer3b.get_width()
+        
+        	if self.layer3a_x <= -1 * self.layer3a.get_width():
+        		self.layer3a_x = self.layer3a_x + self.layer3a.get_width()
+        	if self.layer3b_x <= -1 * self.layer3b.get_width():
+        		self.layer3b_x = self.layer3b_x + self.layer3b.get_width()
 

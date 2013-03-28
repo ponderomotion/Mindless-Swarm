@@ -44,6 +44,7 @@ class Laika(object):
 		# 4 : Game Over Screen
 		# 5 : Quit
 		self.state = TITLE_SCREEN
+		self.graphicsQuality = LOW_QUALITY
 
 		# fonts
 		self.scoreFont = pygame.font.SysFont("consola", 22)
@@ -75,7 +76,7 @@ class Laika(object):
 		#bg_music.play()
 		self.music_channel.set_volume(0.5)
 		
-		self.bg = Background()
+		self.bg = Background(self.graphicsQuality)
 
 	def initPlayers(self):
 		# different depending on 1p or 2p game
