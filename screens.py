@@ -1,7 +1,7 @@
 # Laika
 # Daniel Fletcher 2013
 # License: 
-#    Creative Commons Attribution - Non-Commercial - NoDerivs 2.0 England and Wales
+#    Creative Commons Attribution-NonCommercial 2.5
 #    See LICENSE for details
 
 # this file holds functions for different screens, e.g. death screen, high score entry etc..
@@ -26,7 +26,7 @@ def deathScreen(time=5,highscore=False):
 		death_text = "YOUR EFFORTS WERE IN VAIN!"
 	if (rand1 == 3):
 		sheitsound = load_sound('cough.wav')
-		death_text = "YOUR SHIP EXPLODED!"
+		death_text = "YOUR SHIP EXPLODED AND YOU BURNED ALIVE!"
 	if (rand1 == 4):
 		sheitsound = load_sound('wahwah.wav')
 		death_text = "YOU DIDN'T SURVIVE!"

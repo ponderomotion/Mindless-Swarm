@@ -1,7 +1,7 @@
 # Laika
 # Daniel Fletcher 2013
 # License: 
-#    Creative Commons Attribution - Non-Commercial - NoDerivs 2.0 England and Wales
+#    Creative Commons Attribution-NonCommercial 2.5
 #    See LICENSE for details
 
 # audio utilities
