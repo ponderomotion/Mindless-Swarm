@@ -1,0 +1,29 @@
+AIM:
+
+	Stay alive for as long as you can! Get extra points for killing enemies. Don't get sucked into a passing planet's gravity.
+
+CONTROLS:
+
+	w - forward engine
+	s - reverse engine
+	a - rotate anticlockwise
+	d - rotate clockwise
+
+	f - toggle fullscreen
+	esc - pause/quit
+
+TODO:
+
+	2 player with modes:
+		survival:
+			Whoever stays alive longest wins, no pvp
+		vs:
+			Whoever scores highest wins, pvp
+		head-to-head:
+			pvp, score irrelevant.
+	
+	Need to give option to change graphics quality, ie low graphics we just use 1 background image rather than parallax. Don't AA polygons.
+
+	Enemy, Player and Bullet could all easily inherit from a base class that knows how to draw itself and integrate equations of motion.
+
+	Options screen to toggle graphics and view controls.

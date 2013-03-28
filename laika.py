@@ -1,3 +1,9 @@
+# Laika
+# Daniel Fletcher 2013
+# License: 
+#    Creative Commons Attribution - Non-Commercial - NoDerivs 2.0 England and Wales
+#    See LICENSE for details
+
 import pygame
 from pygame.locals import *
 from sys import exit
