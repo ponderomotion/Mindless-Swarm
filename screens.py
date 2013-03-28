@@ -78,8 +78,8 @@ def startScreen(bg):
 	optext = []
 
 	optext1 = "1: 1 Player Start"
-	optext2 = "2: 2 Player Start"
-	optext3 = "3: View Controls"
+	optext2 = "2: 2 Player Start(Coming Soon)"
+	optext3 = "3: View Controls(Coming Soon)"
 	optext4 = "4: Credits"
 	optext5 = "5: Quit"
 
@@ -188,7 +188,6 @@ def creditsScreen(bg):
 
 # returns 1 if user decides to quit
 def pauseScreen(): 
- 	cont = False
 	bigFont = pygame.font.SysFont("andale mono", 80)
 	contFont = pygame.font.SysFont("consola", 30)
 
@@ -217,41 +216,60 @@ def pauseScreen():
 class Background(object):
     def __init__(self):
         # init graphics
-        self.bgOne = load_image('spacebg.png')
-        self.bgTwo = load_image('spacebg.png')
-        self.fgOne = load_image('fgbg.png', alpha = True)
-        self.fgTwo = load_image('fgbg.png', alpha = True)
-        self.bgOne_x = 0
-        self.bgTwo_x = self.bgOne.get_width()
-        self.fgOne_x = 0
-        self.fgTwo_x = self.fgOne.get_width()
+        self.layer1a = load_image('bglayer1.png')
+        self.layer1b = load_image('bglayer1.png')
+        self.layer2a = load_image('bglayer2.png', alpha = True)
+        self.layer2b = load_image('bglayer2.png', alpha = True)
+        self.layer3a = load_image('bglayer3.png', alpha = True)
+        self.layer3b = load_image('bglayer3.png', alpha = True)
         
+        self.layer1a_x = 0
+        self.layer1b_x = self.layer1a.get_width()
+        self.layer2a_x = 0
+        self.layer2b_x = self.layer2a.get_width()
+        self.layer3a_x = 0
+        self.layer3b_x = self.layer3a.get_width()
+
     def update_and_draw(self):
         # increase background scroll speed as score increases
         #bgspeed = 1 + (self.currentScore / 100000.0)
-        bgspeed = 1
-        fgspeed = 2.5 * bgspeed
+        l1speed = 0.1
+        l2speed = 1.0
+        l3speed = 2.5
 
-        # draw the background
-        SCREEN.blit(self.bgOne,(self.bgOne_x,0))
-        SCREEN.blit(self.bgTwo,(self.bgTwo_x,0))
+        # draw the bottom layer
+        SCREEN.blit(self.layer1a,(self.layer1a_x,0))
+        SCREEN.blit(self.layer1b,(self.layer1b_x,0))
 
-        # draw the forground
-        SCREEN.blit(self.fgOne,(self.fgOne_x,0))
-        SCREEN.blit(self.fgTwo,(self.fgTwo_x,0))
+        # middle layer
+        SCREEN.blit(self.layer2a,(self.layer2a_x,0))
+        SCREEN.blit(self.layer2b,(self.layer2b_x,0))
+
+        # top layer
+        SCREEN.blit(self.layer3a,(self.layer3a_x,0))
+        SCREEN.blit(self.layer3b,(self.layer3b_x,0))
 
         # move along
-        self.bgOne_x -= bgspeed
-        self.bgTwo_x -= bgspeed
-        self.fgOne_x -= fgspeed
-        self.fgTwo_x -= fgspeed
+        self.layer1a_x -= l1speed
+        self.layer1b_x -= l1speed
+        self.layer2a_x -= l2speed
+        self.layer2b_x -= l2speed
+        self.layer3a_x -= l3speed
+        self.layer3b_x -= l3speed
 
         # periodicity
-        if self.bgOne_x <= -1 * self.bgOne.get_width():
-            self.bgOne_x = self.bgTwo_x + self.bgTwo.get_width()
-        if self.bgTwo_x <= -1 * self.bgTwo.get_width():
-            self.bgTwo_x = self.bgOne_x + self.bgOne.get_width()
-        if self.fgOne_x <= -1 * self.fgOne.get_width():
-            self.fgOne_x = self.fgTwo_x + self.fgTwo.get_width()
-        if self.fgTwo_x <= -1 * self.fgTwo.get_width():
-            self.fgTwo_x = self.fgOne_x + self.fgOne.get_width()
+        if self.layer1a_x <= -1 * self.layer1a.get_width():
+            self.layer1a_x = self.layer1a_x + self.layer1a.get_width()
+        if self.layer1b_x <= -1 * self.layer1b.get_width():
+            self.layer1b_x = self.layer1b_x + self.layer1b.get_width()
+
+        if self.layer2a_x <= -1 * self.layer2a.get_width():
+            self.layer2a_x = self.layer2a_x + self.layer2a.get_width()
+        if self.layer2b_x <= -1 * self.layer2b.get_width():
+            self.layer2b_x = self.layer2b_x + self.layer2b.get_width()
+
+        if self.layer3a_x <= -1 * self.layer3a.get_width():
+            self.layer3a_x = self.layer3a_x + self.layer3a.get_width()
+        if self.layer3b_x <= -1 * self.layer3b.get_width():
+            self.layer3b_x = self.layer3b_x + self.layer3b.get_width()
+
