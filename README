@@ -1,3 +1,14 @@
+GETTING IT RUNNING:
+	Windows:
+		First you'll need python2.7:
+			http://www.python.org/ftp/python/2.7.3/python-2.7.3.msi
+		Then you'll need to install pygame:
+			http://pygame.org/ftp/pygame-1.9.1.win32-py2.7.msi
+		Then you'll need to download the assets and put them in the laika folder under /assets/:
+			https://dl.dropbox.com/u/322482/assets.zip
+		
+
+
 AIM:
 
 	Stay alive for as long as you can! Get extra points for killing enemies. Don't get sucked into a passing planet's gravity.
