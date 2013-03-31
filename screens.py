@@ -218,7 +218,7 @@ def pauseScreen():
 					return(TITLE_SCREEN)
 
 
-# hold and advance backdrop
+# hold and advance backdrop png's
 class Background(object):
     def __init__(self, quality = MEDIUM_QUALITY):
         # init graphics
@@ -228,6 +228,9 @@ class Background(object):
         self.layer1b = load_image('bglayer1.png')
         self.layer1a_x = 0
         self.layer1b_x = self.layer1a.get_width()
+        self.l1speed = 0.4
+        self.l2speed = 1.0
+        self.l3speed = 2.5
 
         if quality == HIGH_QUALITY:
         	self.layer2a = load_image('bglayer2.png', alpha = True)
@@ -266,44 +269,117 @@ class Background(object):
     def update_and_draw(self):
         # increase background scroll speed as score increases
         #bgspeed = 1 + (self.currentScore / 100000.0)
-        
-        # background layer 1 drawn for all quality levels
-        l1speed = 0.3
+
         # draw the bottom layer
         SCREEN.blit(self.layer1a,(self.layer1a_x,0))
         SCREEN.blit(self.layer1b,(self.layer1b_x,0))
         # move along
-        self.layer1a_x -= l1speed
-        self.layer1b_x -= l1speed
+        self.layer1a_x -= self.l1speed
+        self.layer1b_x -= self.l1speed
         # periodicity
         if self.layer1a_x <= -1 * self.layer1a.get_width():
-            self.layer1a_x = self.layer1a_x + self.layer1a.get_width()
+            self.layer1a_x = self.layer1b_x + self.layer1b.get_width()
         if self.layer1b_x <= -1 * self.layer1b.get_width():
-            self.layer1b_x = self.layer1b_x + self.layer1b.get_width()
+            self.layer1b_x = self.layer1a_x + self.layer1a.get_width()
 
         if self.quality == HIGH_QUALITY:
-        	l2speed = 1.0
         	# middle layer
         	SCREEN.blit(self.layer2a,(self.layer2a_x,0))
         	SCREEN.blit(self.layer2b,(self.layer2b_x,0))
-        	self.layer2a_x -= l2speed
-        	self.layer2b_x -= l2speed
+        	self.layer2a_x -= self.l2speed
+        	self.layer2b_x -= self.l2speed
         	if self.layer2a_x <= -1 * self.layer2a.get_width():
-        		self.layer2a_x = self.layer2a_x + self.layer2a.get_width()
+        		self.layer2a_x = self.layer2b_x + self.layer2b.get_width()
         	if self.layer2b_x <= -1 * self.layer2b.get_width():
-        		self.layer2b_x = self.layer2b_x + self.layer2b.get_width()
+        		self.layer2b_x = self.layer2a_x + self.layer2a.get_width()
         
         if self.quality == HIGH_QUALITY or self.quality == MEDIUM_QUALITY:
-        	l3speed = 2.5
         	# top layer
         	SCREEN.blit(self.layer3a,(self.layer3a_x,0))
         	SCREEN.blit(self.layer3b,(self.layer3b_x,0))        
-        	self.layer3a_x -= l3speed
-        	self.layer3b_x -= l3speed
+        	
+        	self.layer3a_x -= self.l3speed
+        	self.layer3b_x -= self.l3speed
+
+        	if self.layer3a_x <= -1 * self.layer3a.get_width():
+        		self.layer3a_x = self.layer3b_x + self.layer3b.get_width()
+        	if self.layer3b_x <= -1 * self.layer3b.get_width():
+        		self.layer3b_x = self.layer3a_x + self.layer3a.get_width()
+
+# randomly generated background starfield. Perhaps a bit less laggy than blitting pngs
+class Background_random(object):
+    def __init__(self, quality = MEDIUM_QUALITY):
+        # init graphics
+
+        self.quality = quality
+
+        # list of stars in each layer
+        self.l1list = []
+        self.nl1 = 200  
+        self.nl2 = 200
+        self.nl3 = 150
+
+        self.l3list = []
+
+
+        # generate initial starfield
+        for i in range(0,self.nl1):
+        	pos = Vec2d(random()*WINDOW_X, random()*WINDOW_Y)
+        	col = (random()*100,random()*100,random()*100)
+        	self.l1list.append(Star(pos,0.5,col,size = 2))
+        	l2List.append(Star(pos,2.0,(100,100,100), size = 0))
+
+    def set_quality(self,quality):
+    	None
+
 
         
-        	if self.layer3a_x <= -1 * self.layer3a.get_width():
-        		self.layer3a_x = self.layer3a_x + self.layer3a.get_width()
-        	if self.layer3b_x <= -1 * self.layer3b.get_width():
-        		self.layer3b_x = self.layer3b_x + self.layer3b.get_width()
+    def update_and_draw(self):
+
+    	SCREEN.fill(BLACK)
+    	self.spawn_stars()
+
+    	for star in self.l1list:
+    		star.update_and_draw()
+    		if star.pos.x < 0:
+    			self.l1list.remove(star)
+
+    	for star in l2List:
+    		star.update_and_draw()
+    		if star.pos.x < 0:
+    			l2List.remove(star)
+
+    def spawn_stars(self):
+    	if(random()<0.2):
+    		col = (random()*100,random()*100,random()*100)
+    		self.l1list.append(Star(initpos=Vec2d(WINDOW_X,random()*WINDOW_Y), colour = col, size = 2))
+    	if(random()<0.7):
+    		col = (100,100,100)
+    		l2List.append(Star(initpos=Vec2d(WINDOW_X,random()*WINDOW_Y),initspeed = 2.0, colour = col, size = 0))
+
+
+class Star(object):
+	def __init__(self,initpos=Vec2d(WINDOW_X,random()*WINDOW_Y), initspeed = 0.5, colour=(30,30,30), size = 0):
+		self.pos = Vec2d(initpos.x, initpos.y)
+		self.vel = -initspeed
+		self.col = colour
+		self.physacc = Vec2d(0,0)
+		self.radius = size
+
+	def update_and_draw(self):
+		self.update(0.0002)
+		self.draw()
+
+	def update(self,dt):
+		self.pos.x = self.pos.x + self.vel + self.physacc.x * dt
+		self.pos.y = self.pos.y + self.physacc.y * dt
+
+	def draw(self):
+		pygame.draw.circle(SCREEN, self.col, (int(self.pos.x), int(self.pos.y)), self.radius)
+
+
+
+
+
+
 

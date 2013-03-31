@@ -76,7 +76,7 @@ class Laika(object):
 		#bg_music.play()
 		self.music_channel.set_volume(0.5)
 		
-		self.bg = Background(self.graphicsQuality)
+		self.bg = Background_random(self.graphicsQuality)
 
 	def initPlayers(self):
 		# different depending on 1p or 2p game
@@ -91,9 +91,14 @@ class Laika(object):
 				self.state = startScreen(self.bg)
 
 			if(self.state == GAME_SCREEN):
+				
 				self.getInput()
 				self.spawnEntities()
 				self.update_and_draw_background()
+				# show fps
+				fpstext = str(clock.get_fps())
+				fps = self.scoreFont.render(fpstext, False, (200,255,255))
+				SCREEN.blit(fps, (600,500))
 				self.update_and_draw_scores_and_status()
 				self.update_and_draw_all_entities()
 				self.collisions()
@@ -120,6 +125,19 @@ class Laika(object):
 			if(self.state==PAUSE_SCREEN):
 				self.state = pauseScreen()
 				clock.tick()
+				if self.state == TITLE_SCREEN:
+					del enemyList[:]
+					del enemyBullets[:]
+					del gravList[:]
+					if(self.player1.currentScore >= self.topScore):
+						self.topScore = self.player1.currentScore
+						self.highScores.high_score = self.topScore
+						self.highScores.high_scorer = "1up"
+						writescores(self.highScores)
+						self.newhighscore = True
+					else:
+						self.newhighscore = False
+					self.player1.reset()
 			
 			if(self.state==GAMEOVER_SCREEN):
 				self.state = deathScreen(1,highscore=self.newhighscore)

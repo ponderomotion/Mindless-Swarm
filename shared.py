@@ -47,6 +47,7 @@ clock = pygame.time.Clock()
 enemyBullets = []
 playerBullets = []
 explosionList = []
+l2List = [] # list of stars affected by gravity
 
 class Bullet(object):
 	def __init__(self, init_pos, init_vel, angle, bullettype=1):
